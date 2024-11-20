@@ -11,7 +11,6 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
-import {createPullRequest} from './createPullRequest'
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -152,7 +151,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           changes: [
             {
               files: {
-                "test.md": "this is a test markdown!"
+                "test.md": "this is a test markdown but now with an edit so lets see what happens now"
               },
               commit: "this is a test commit"
             }
