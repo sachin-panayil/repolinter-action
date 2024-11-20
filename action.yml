@@ -74,6 +74,7 @@ inputs:
         repository with the repolinter output and always exit 0. See the README for
         more details on issue outputting behavior. This output type is ideal for
         non-intrusive notification.
+      * "pull-request": repolitner-action will send a PR.
     default: 'exit-code'
   output_name:
     required: false
