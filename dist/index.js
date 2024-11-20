@@ -631,14 +631,14 @@ function run(disableRetry) {
                         owner,
                         repo,
                         title: "test-PR",
-                        body: "this is an initial PR",
-                        head: `repolinter/run-123`,
+                        body: repolinter_1.markdownFormatter.formatOutput(result, true),
+                        head: `repolinter/run-${RUN_NUMBER}`,
                         base: 'main',
                         changes: [
                             {
                                 files: {
                                     "test.md": "this is a test markdown but now with an edit so lets see what happens now",
-                                    "test2.md": "this is a test 2 markdown"
+                                    "test2.md": "this is a test 2"
                                 },
                                 commit: "this is a test commit"
                             }
