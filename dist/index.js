@@ -616,6 +616,7 @@ function run(disableRetry) {
             }
             else if (OUTPUT_TYPE === 'pull-request') {
                 const octokit = new getOctokit_1.default({
+                    auth: TOKEN,
                     request: disableRetry ? { retries: 0 } : undefined,
                     log: {
                         debug: core.debug,
@@ -623,8 +624,16 @@ function run(disableRetry) {
                         warn: core.warning,
                         error: core.error
                     }
-                });
-                const [owner, repo] = REPO.split('/');
+                }); // wondering if this could be initialized before as we use this line already. keep it DRY
+                const [owner, repo] = REPO.split('/'); // same here. keep it DRY
+                /*
+                at this point, we should be checking what files should be commited.
+                im thinking that we call the JSONFormatter for the repolinter result.
+                we parse this JSON to find out what rules have passes.
+                specifically, what files dont exist. this might change tho depending on what tier we are using so this will need some more thinking.
+                after we parse the data and see what files are missing, we can supply templates that live within this repo
+                we need to figure out away to tie the different types of tiers into this
+                */
                 core.startGroup('Sending a PR');
                 try {
                     const pr = yield octokit.createPullRequest({
@@ -636,11 +645,12 @@ function run(disableRetry) {
                         base: 'main',
                         changes: [
                             {
+                                // before we call the function, we should have the files ready to go
                                 files: {
                                     "test.md": "this is a test markdown but now with an edit so lets see what happens now",
                                     "test2.md": "this is a test 2"
                                 },
-                                commit: "this is a test commit"
+                                commit: "this is a test commit" // find out proper language for this
                             }
                         ]
                     });
@@ -649,7 +659,7 @@ function run(disableRetry) {
                     }
                 }
                 catch (error) {
-                    core.error('Failed to create pull request');
+                    core.error(`Failed to create pull request: ${error.message}`);
                     throw error;
                 }
                 core.endGroup();
