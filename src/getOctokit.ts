@@ -1,5 +1,6 @@
 import {Octokit as ActionKit} from '@octokit/action'
 import {retry} from '@octokit/plugin-retry'
+import {createPullRequest} from "octokit-plugin-create-pull-request"
 
 /**
  * This file serves as a centralized location to setup Octokit with the
@@ -8,6 +9,8 @@ import {retry} from '@octokit/plugin-retry'
  */
 
 // strip plugin types to make testing easier
-const MyOctokit = ActionKit.plugin(retry)
+const MyOctokit = ActionKit
+.plugin(retry)
+.plugin(createPullRequest)
 
 export default MyOctokit

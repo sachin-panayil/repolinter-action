@@ -136,19 +136,39 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           error: core.error
         }
       })
-
+    
       const [owner, repo] = REPO.split('/')
-
+    
       core.startGroup('Sending a PR')
-        await createPullRequest(octokit, {
-          owner: owner,
-          repo: repo,
-          username: USERNAME,
-          missingFiles: ["README.md"],
-          baseBranch: "main"
-        })
-        core.endGroup()
-        process.exitCode = 0
+      
+      try {
+        const pr = await octokit.createPullRequest({
+          owner,
+          repo,
+          title: "test-PR",
+          body: "this is an initial PR",
+          head: `repolinter/run-123`,
+          base: 'main',
+          changes: [
+            {
+              files: {
+                "test.md": "this is a test markdown!"
+              },
+              commit: "this is a test commit"
+            }
+          ]
+        });
+    
+        if (pr) {
+          core.info(`Pull Request created: ${pr.data.html_url}`);
+        }
+      } catch (error) {
+        core.error('Failed to create pull request');
+        throw error;
+      }
+    
+      core.endGroup()
+      process.exitCode = 0
     }
     // set the outputs for this action
     core.setOutput(ActionOutputs.ERRORED, result.errored)
