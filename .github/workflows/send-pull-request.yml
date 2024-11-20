@@ -19,9 +19,6 @@ jobs:
         
       - name: Build
         run: npm run build
-
-      - name: Package with ncc
-        run: npm run package
       
       - name: Test Local Action
         uses: sachin-panayil/repolinter-action@main 
