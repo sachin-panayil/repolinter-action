@@ -5,4 +5,4 @@ WORKDIR /repolinter-action
 COPY dist dist
 
 # Working directory will automagically be set to github workspace when the container is executed
-ENTRYPOINT ["bundle", "exec", "node /repolinter-action/dist/index.js"]
+ENTRYPOINT ["bundle", "exec", "node /repolinter-action/lib/main.js"]
