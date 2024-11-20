@@ -11,6 +11,7 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
+import {createPullRequest} from './createPullRequest'
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -64,8 +65,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       throw e
     }
     // verify the output type is correct
-    if (OUTPUT_TYPE !== 'exit-code' && OUTPUT_TYPE !== 'issue')
-      throw new Error(`Invalid output paramter value ${OUTPUT_TYPE}`)
+    if (OUTPUT_TYPE!== 'exit-code' && OUTPUT_TYPE !== 'issue' && OUTPUT_TYPE !== "pull-request")
+      throw new Error(`Invalid output paramter value ${ OUTPUT_TYPE} There is another error here`)
     // verify the label name is a string
     if (!LABEL_NAME) throw new Error(`Invalid label name value ${LABEL_NAME}`)
     // verify the label color is a color
@@ -107,11 +108,6 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           error: core.error
         }
       })
-      octokit.hook.after('request', (response, options) =>
-        core.debug(
-          `${options.method} ${options.url}: ${JSON.stringify(response)}`
-        )
-      )
 
       const [owner, repo] = REPO.split('/')
       const issueContent = markdownFormatter.formatOutput(result, true)
@@ -130,6 +126,29 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       })
       core.endGroup()
       process.exitCode = 0
+    } else if (OUTPUT_TYPE === 'pull-request') {
+      const octokit = new Octokit({
+        request: disableRetry ? {retries: 0} : undefined,
+        log: {
+          debug: core.debug,
+          info: core.info,
+          warn: core.warning,
+          error: core.error
+        }
+      })
+
+      const [owner, repo] = REPO.split('/')
+
+      core.startGroup('Sending a PR')
+        await createPullRequest(octokit, {
+          owner: owner,
+          repo: repo,
+          username: USERNAME,
+          missingFiles: ["README.md"],
+          baseBranch: "main"
+        })
+        core.endGroup()
+        process.exitCode = 0
     }
     // set the outputs for this action
     core.setOutput(ActionOutputs.ERRORED, result.errored)
@@ -144,7 +163,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     core.setOutput(ActionOutputs.ERRORED, true)
     core.setOutput(ActionOutputs.PASSED, false)
     core.setFailed('A fatal error was thrown.')
-    if (error.name === 'HttpError') {
+    if ((error as RequestError).name === 'HttpError') {
       const requestError = error as RequestError
       // Octokit threw an error, so we can print out detailed information
       core.error(
@@ -154,7 +173,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         `${requestError.request.method} ${requestError.request.url} returned status ${requestError.status}`
       )
       core.debug(JSON.stringify(error))
-    } else if (error.stack) core.error(error.stack)
-    else core.error(error)
+    } else if ((error as RequestError).stack) console.log("core.error(error.stack)")
+    else core.error((error as RequestError))
   }
 }
