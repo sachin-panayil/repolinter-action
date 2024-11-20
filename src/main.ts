@@ -151,7 +151,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           changes: [
             {
               files: {
-                "test.md": "this is a test markdown but now with an edit so lets see what happens now"
+                "test.md": "this is a test markdown but now with an edit so lets see what happens now",
+                "test2.md": "this is a test 2 markdown"
               },
               commit: "this is a test commit"
             }
