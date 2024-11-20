@@ -45,7 +45,7 @@ export async function createPullRequest(
           repo: options.repo,
           path: file,
           message: `Add ${file} template`,
-          content: Base64.encode(templates[file]),
+          content: templates[file],
           branch: branchName
         })
       }
