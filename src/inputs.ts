@@ -8,7 +8,8 @@ export const enum ActionInputs {
   OUTPUT_TYPE = 'output_type',
   OUTPUT_NAME = 'output_name',
   LABEL_NAME = 'label_name',
-  LABEL_COLOR = 'label_color'
+  LABEL_COLOR = 'label_color',
+  BASE_BRANCH = "base_branch"
 }
 
 export const enum ActionOutputs {
