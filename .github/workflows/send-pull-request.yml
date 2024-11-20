@@ -1,0 +1,14 @@
+name: Test New Repolinter Action
+on: 
+   workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Test Local Action
+        uses: sachin-panayil/repolinter-action@main 
+        with:
+          output_type: 'pull-request'
