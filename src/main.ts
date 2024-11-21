@@ -146,7 +146,21 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       specifically, what files dont exist. this might change tho depending on what tier we are using so this will need some more thinking.
       after we parse the data and see what files are missing, we can supply templates that live within this repo
       we need to figure out away to tie the different types of tiers into this
+
+      the tiers dont matter as the repolinter.json will be in the respective repos no matter what.
+
+      call JSONFormatter, filter through the json to only check for 
       */
+
+      
+      const json = jsonFormatter.formatOutput(result, true)
+      console.log(json)
+
+      // function getFailedFileNames(json: string): string[] {
+      //   const data = JSON.parse(json)
+      // }
+
+      // const fileNames = getFailedFileNames(json)
 
       core.startGroup('Sending a PR')
       
