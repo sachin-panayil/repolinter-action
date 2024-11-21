@@ -10,7 +10,11 @@ interface RuleResult {
 interface RuleInfo {
     ruleType: string;
     name: string;
-    
+    ruleConfig: RuleConfig
+}
+
+interface RuleConfig {
+    globsAny: string[]
 }
 
 
@@ -23,6 +27,10 @@ export function filterForFiles(jsonString: string): string[] {
                 result.status === "NOT_PASSED_ERROR" && 
                 result.ruleInfo.ruleType === "file-existence"
             )
+            .map(result => {
+                const pattern = result.ruleInfo.ruleConfig.globsAny[0]
+                return pattern.split("}").pop()
+            })
         
         console.log(missingFiles);
         return []

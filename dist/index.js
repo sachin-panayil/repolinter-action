@@ -336,7 +336,11 @@ function filterForFiles(jsonString) {
         const data = JSON.parse(jsonString);
         const missingFiles = data.results
             .filter(result => result.status === "NOT_PASSED_ERROR" &&
-            result.ruleInfo.ruleType === "file-existence");
+            result.ruleInfo.ruleType === "file-existence")
+            .map(result => {
+            const pattern = result.ruleInfo.ruleConfig.globsAny[0];
+            return pattern.split("}").pop();
+        });
         console.log(missingFiles);
         return [];
     }
