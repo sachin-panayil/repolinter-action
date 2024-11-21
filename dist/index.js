@@ -668,36 +668,34 @@ function run(disableRetry) {
                 const jsonData = repolinter_1.jsonFormatter.formatOutput(result, true);
                 const fileNames = filterForFileNames_1.filterForFiles(jsonData);
                 console.log(fileNames);
-                // now that we have file names, we can 
-                core.startGroup('Sending a PR');
-                try {
-                    const pr = yield octokit.createPullRequest({
-                        owner,
-                        repo,
-                        title: "test-PR",
-                        body: repolinter_1.markdownFormatter.formatOutput(result, true),
-                        head: `repolinter/run-${RUN_NUMBER}`,
-                        base: 'main',
-                        changes: [
-                            {
-                                // before we call the function, we should have the files ready to go
-                                files: {
-                                    "test.md": "this is a test markdown but now with an edit so lets see what happens now",
-                                    "test2.md": "this is a test 2"
-                                },
-                                commit: "this is a test commit" // find out proper language for this
-                            }
-                        ]
-                    });
-                    if (pr) {
-                        core.info(`Pull Request created: ${pr.data.html_url}`);
-                    }
-                }
-                catch (error) {
-                    core.error(`Failed to create pull request: ${error.message}`);
-                    throw error;
-                }
-                core.endGroup();
+                // core.startGroup('Sending a PR')
+                // try {
+                //   const pr = await octokit.createPullRequest({
+                //     owner,
+                //     repo,
+                //     title: "test-PR", // find out proper language for this 
+                //     body: markdownFormatter.formatOutput(result, true), // this should be in a sepreate file tbh. should include guidance on next steps
+                //     head: `repolinter/run-${RUN_NUMBER}`, // not sure if we want to include run number in here but each branch has to be different
+                //     base: 'main', // include the base brnach found in inputs.ts and use 'main' as default
+                //     changes: [
+                //       {
+                //         // before we call the function, we should have the files ready to go
+                //         files: {
+                //           "test.md": "this is a test markdown but now with an edit so lets see what happens now",
+                //           "test2.md": "this is a test 2"
+                //         },
+                //         commit: "this is a test commit" // find out proper language for this
+                //       }
+                //     ]
+                //   });
+                //   if (pr) {
+                //     core.info(`Pull Request created: ${pr.data.html_url}`);
+                //   }
+                // } catch (error) {
+                //   core.error(`Failed to create pull request: ${(error as Error).message}`);
+                //   throw error;
+                // }
+                // core.endGroup()
                 process.exitCode = 0;
             }
             // set the outputs for this action

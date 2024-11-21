@@ -5,24 +5,14 @@ interface RepoLintResult {
 interface RuleResult {
     ruleInfo: RuleInfo;
     status: string;
-    lintResult: LintResult;
 }
 
 interface RuleInfo {
     ruleType: string;
     name: string;
+    
 }
 
-interface LintResult {
-    message?: string;
-    targets: Target[];
-    passed: boolean;
-}
-
-interface Target {
-    passed: boolean;
-    pattern?: string;
-}
 
 export function filterForFiles(jsonString: string): string[] {
     try {
