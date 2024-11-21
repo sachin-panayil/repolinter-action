@@ -146,50 +146,51 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       we parse this JSON to find out what rules have passes.
       specifically, what files dont exist. this might change tho depending on what tier we are using so this will need some more thinking.
       after we parse the data and see what files are missing, we can supply templates that live within this repo
-      we need to figure out away to tie the different types of tiers into this
 
       the tiers dont matter as the repolinter.json will be in the respective repos no matter what.
-
-      call JSONFormatter, filter through the json to only check for 
       */
 
-      
-      const jsonData = jsonFormatter.formatOutput(result, true)
+      const fileNames = filterForFiles(jsonFormatter.formatOutput(result, true))
 
-      const fileNames = filterForFiles(jsonData)
+      /*
+      once we get the file names, we prob need a second helper function that returns an object
+      the key would be the fileName constant adn the value would be templates for each one of them
+      trying to figure out how this would work in terms of each tiers README and the differences between them
+      since each value would be different depending on which tier your on
+      */
       
       console.log(fileNames)
-
-      // core.startGroup('Sending a PR')
       
-      // try {
-      //   const pr = await octokit.createPullRequest({
-      //     owner,
-      //     repo,
-      //     title: "test-PR", // find out proper language for this 
-      //     body: markdownFormatter.formatOutput(result, true), // this should be in a sepreate file tbh. should include guidance on next steps
-      //     head: `repolinter/run-${RUN_NUMBER}`, // not sure if we want to include run number in here but each branch has to be different
-      //     base: 'main', // include the base brnach found in inputs.ts and use 'main' as default
-      //     changes: [
-      //       {
-      //         // before we call the function, we should have the files ready to go
-      //         files: {
-      //           "test.md": "this is a test markdown but now with an edit so lets see what happens now",
-      //           "test2.md": "this is a test 2"
-      //         },
-      //         commit: "this is a test commit" // find out proper language for this
-      //       }
-      //     ]
-      //   });
-      //   if (pr) {
-      //     core.info(`Pull Request created: ${pr.data.html_url}`);
-      //   }
-      // } catch (error) {
-      //   core.error(`Failed to create pull request: ${(error as Error).message}`);
-      //   throw error;
-      // }
+      core.startGroup('Sending a PR')
+      
+      try {
+        const pr = await octokit.createPullRequest({
+          owner,
+          repo,
+          title: "test-PR", // find out proper language for this 
+          body: markdownFormatter.formatOutput(result, true), // this should be in a sepreate file tbh. should include guidance on next steps
+          head: `repolinter/run-${RUN_NUMBER}`, // not sure if we want to include run number in here but each branch has to be different
+          base: 'main', // include the base brnach found in inputs.ts and use 'main' as default
+          changes: [
+            {
+              // before we call the function, we should have the files ready to go
+              files: {
+                "test.md": "this is a test markdown but now with an edit so lets see what happens now",
+                "test2.md": "this is a test 2"
+              },
+              commit: "this is a test commit" // find out proper language for this
+            }
+          ]
+        });
+        if (pr) {
+          core.info(`Pull Request created: ${pr.data.html_url}`);
+        }
+      } catch (error) {
+        core.error(`Failed to create pull request: ${(error as Error).message}`);
+        throw error;
+      }
     
-      // core.endGroup()
+      core.endGroup()
       process.exitCode = 0
     }
     // set the outputs for this action

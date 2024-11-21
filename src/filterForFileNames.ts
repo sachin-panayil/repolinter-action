@@ -17,7 +17,6 @@ interface RuleConfig {
     globsAny: string[]
 }
 
-
 export function filterForFiles(jsonString: string): string[] {
     try {
         const data: RepoLintResult = JSON.parse(jsonString);
@@ -29,7 +28,7 @@ export function filterForFiles(jsonString: string): string[] {
             )
             .map(result => {
                 const pattern = result.ruleInfo.ruleConfig.globsAny[0]
-                return pattern.split("}").pop()
+                return pattern.split("}").pop() || pattern
             })
         
         console.log(missingFiles);
