@@ -11,6 +11,7 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
+import {filterForFiles} from "./filterForFileNames"
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -153,14 +154,13 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       */
 
       
-      const json = jsonFormatter.formatOutput(result, true)
-      console.log(json)
+      const jsonData = jsonFormatter.formatOutput(result, true)
 
-      // function getFailedFileNames(json: string): string[] {
-      //   const data = JSON.parse(json)
-      // }
+      const fileNames = filterForFiles(jsonData)
+      
+      console.log(fileNames)
 
-      // const fileNames = getFailedFileNames(json)
+      // now that we have file names, we can 
 
       core.startGroup('Sending a PR')
       

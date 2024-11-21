@@ -324,6 +324,32 @@ main_1.default();
 
 /***/ }),
 
+/***/ 16845:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.filterForFiles = void 0;
+function filterForFiles(jsonString) {
+    try {
+        const data = JSON.parse(jsonString);
+        const missingFiles = data.results
+            .filter(result => result.status === "NOT_PASSED_ERROR" &&
+            result.ruleInfo.ruleType === "file-existence");
+        console.log(missingFiles);
+        return [];
+    }
+    catch (error) {
+        console.error('Error parsing repolinter output:', error);
+        return [];
+    }
+}
+exports.filterForFiles = filterForFiles;
+//# sourceMappingURL=filterForFileNames.js.map
+
+/***/ }),
+
 /***/ 69801:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -512,6 +538,7 @@ const repolinter_1 = __nccwpck_require__(70430);
 const fs = __importStar(__nccwpck_require__(35747));
 const getConfig_1 = __importDefault(__nccwpck_require__(69801));
 const createorUpdateIssue_1 = __importDefault(__nccwpck_require__(82356));
+const filterForFileNames_1 = __nccwpck_require__(16845);
 function getInputs() {
     return {
         DIRECTORY: core.getInput("directory" /* DIRECTORY */, { required: true }),
@@ -638,12 +665,10 @@ function run(disableRetry) {
           
                 call JSONFormatter, filter through the json to only check for
                 */
-                const json = repolinter_1.jsonFormatter.formatOutput(result, true);
-                console.log(json);
-                // function getFailedFileNames(json: string): string[] {
-                //   const data = JSON.parse(json)
-                // }
-                // const fileNames = getFailedFileNames(json)
+                const jsonData = repolinter_1.jsonFormatter.formatOutput(result, true);
+                const fileNames = filterForFileNames_1.filterForFiles(jsonData);
+                console.log(fileNames);
+                // now that we have file names, we can 
                 core.startGroup('Sending a PR');
                 try {
                     const pr = yield octokit.createPullRequest({
