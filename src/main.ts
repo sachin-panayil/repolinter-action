@@ -151,6 +151,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       const git: SimpleGit = simpleGit();
       
       try {
+          await git.raw(['config', '--global', '--add', 'safe.directory', '/github/workspace']);
+
           await git.checkoutLocalBranch(`test-branch-${RUN_NUMBER}`);
           
           await git.add('.');
