@@ -11,7 +11,6 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
-import simpleGit, { SimpleGit } from 'simple-git';
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -137,35 +136,32 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           error: core.error
         }
       }) // wondering if this could be initialized before as we use this line already. keep it DRY
-    
-      core.startGroup('Sending a PR')
-
-      // check for missing content
-      const result2 = await lint(DIRECTORY, undefined, config, true)
-      core.debug(JSON.stringify(result2))
-      // print the formatted result
-      core.startGroup('Repolinter Output 2')
-      core.info(resultFormatter.formatOutput(result2, true))
-      core.endGroup()
-
-      const git: SimpleGit = simpleGit();
       
+      core.startGroup('Sending a PR')
+      const [owner, repo] = REPO.split('/')
+
       try {
-          await git.raw(['config', '--global', '--add', 'safe.directory', '/github/workspace']);
-
-          await git.checkoutLocalBranch(`test-branch-${RUN_NUMBER}`);
-          
-          await git.add('.');
-          
-          await git.commit("this is a test commit");
-          
-          await git.push('origin', `test-branch-${RUN_NUMBER}`, ['--set-upstream']);
-
-          core.info("Pull Request created");
-        
+        const pullRequest = await octokit.createPullRequest({
+          owner,
+          repo,
+          title: 'Repolinter Updates',
+          body: 'This PR contains automated updates from Repolinter checks. It wil also include a markdown of the actual output in a bit.',
+          base: 'main',
+          head: `repolinter/updates-${RUN_NUMBER}`,
+          changes: [{
+            files: {
+              '.': '.'
+            },
+            commit: 'Repolinter updates'
+          }]
+        })
+    
+        if (pullRequest) {
+          core.info(`Pull request created: ${pullRequest.data.html_url}`)
+        }
       } catch (error) {
-        core.error(`Failed to create pull request: ${(error as Error).message}`);
-        throw error;
+        core.error('Failed to create pull request')
+        throw error
       }
     
       core.endGroup()
