@@ -628,18 +628,27 @@ function run(disableRetry) {
                 core.startGroup('Sending a PR');
                 const [owner, repo] = REPO.split('/');
                 try {
-                    const { execSync } = __nccwpck_require__(63129);
-                    const branchName = `repolinter/updates-${RUN_NUMBER}`;
-                    execSync(`git checkout -b ${branchName}`);
-                    execSync('git add .');
-                    execSync('git commit -m "Repolinter automated updates"');
-                    execSync(`git push origin ${branchName}`);
-                    const prOutput = execSync(`gh pr create \
-           --title "Repolinter Automated Updates" \
-           --body "This PR contains automated updates from Repolinter checks" \
-           --base main \
-           --head ${branchName}`).toString();
-                    core.info(`Pull request created: ${prOutput}`);
+                    // Create or update PR using octokit-plugin-create-pull-request
+                    const prResponse = yield octokit.createPullRequest({
+                        owner,
+                        repo,
+                        title: 'test repolinter title',
+                        body: "this will haev the output in a bit",
+                        base: "main",
+                        head: `repolinter-${RUN_NUMBER}`,
+                        changes: [{
+                                files: {
+                                    "": null
+                                },
+                                commit: "test commit message"
+                            }]
+                    });
+                    if (prResponse) {
+                        core.info(`Created PR: ${prResponse.data.html_url}`);
+                    }
+                    else {
+                        core.info('No changes detected, skipping PR creation');
+                    }
                 }
                 catch (error) {
                     core.error('Failed to create pull request');
