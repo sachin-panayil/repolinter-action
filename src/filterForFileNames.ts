@@ -1,43 +1,40 @@
-// change file name to pullRequestHelpers
-
-interface RepoLintResult {
-    results: RuleResult[];
+interface RepolinterResult {
+    results: Array<{
+        ruleInfo: {
+            ruleType: string;
+            ruleConfig: {
+                ['file-name']?: string;
+                ['file-content']?: string;
+            };
+        };
+        status: string;
+        lintResult?: {
+            targets?: Array<{
+                path?: string;
+            }>;
+        };
+    }>;
 }
 
-interface RuleResult {
-    ruleInfo: RuleInfo;
-    status: string;
-}
-
-interface RuleInfo {
-    ruleType: string;
-    name: string;
-    ruleConfig: RuleConfig
-}
-
-interface RuleConfig {
-    globsAny: string[]
-}
-
-// step 1 is to get the name of the files that are missing
-export function filterForFiles(jsonString: string): string[] {
+export function getFileChanges(jsonResult: string): { [key: string]: string } {
     try {
-        const data: RepoLintResult = JSON.parse(jsonString);
-        
-        const missingFiles = data.results
-            .filter(result => 
-                result.status === "NOT_PASSED_ERROR" && 
-                result.ruleInfo.ruleType === "file-existence"
-            )
-            .map(result => {
-                const pattern = result.ruleInfo.ruleConfig.globsAny[0]
-                return pattern.split("}").pop() || pattern
-            })
-        
-        console.log(missingFiles);
-        return []
+        const data: RepolinterResult = JSON.parse(jsonResult);
+        const files: { [key: string]: string } = {};
+
+        for (const result of data.results) {
+            if (result.status === 'NOT_PASSED_ERROR') {
+                const fileName = result.ruleInfo.ruleConfig['file-name'];
+                const content = result.ruleInfo.ruleConfig['file-content'] || '';
+
+                if (fileName) {
+                    files[fileName] = content;
+                }
+            }
+        }
+
+        return files;
     } catch (error) {
-        console.error('Error parsing repolinter output:', error);
-        return [];
+        console.error('Error parsing repolinter results:', error);
+        return {};
     }
-}                     
+}

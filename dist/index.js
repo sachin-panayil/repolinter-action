@@ -324,6 +324,38 @@ main_1.default();
 
 /***/ }),
 
+/***/ 16845:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getFileChanges = void 0;
+function getFileChanges(jsonResult) {
+    try {
+        const data = JSON.parse(jsonResult);
+        const files = {};
+        for (const result of data.results) {
+            if (result.status === 'NOT_PASSED_ERROR') {
+                const fileName = result.ruleInfo.ruleConfig['file-name'];
+                const content = result.ruleInfo.ruleConfig['file-content'] || '';
+                if (fileName) {
+                    files[fileName] = content;
+                }
+            }
+        }
+        return files;
+    }
+    catch (error) {
+        console.error('Error parsing repolinter results:', error);
+        return {};
+    }
+}
+exports.getFileChanges = getFileChanges;
+//# sourceMappingURL=filterForFileNames.js.map
+
+/***/ }),
+
 /***/ 69801:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -512,6 +544,7 @@ const repolinter_1 = __nccwpck_require__(70430);
 const fs = __importStar(__nccwpck_require__(35747));
 const getConfig_1 = __importDefault(__nccwpck_require__(69801));
 const createorUpdateIssue_1 = __importDefault(__nccwpck_require__(82356));
+const filterForFileNames_1 = __nccwpck_require__(16845);
 function getInputs() {
     return {
         DIRECTORY: core.getInput("directory" /* DIRECTORY */, { required: true }),
@@ -628,8 +661,9 @@ function run(disableRetry) {
                 core.startGroup('Sending a PR');
                 const [owner, repo] = REPO.split('/');
                 try {
-                    // Create or update PR using octokit-plugin-create-pull-request
-                    const prResponse = yield octokit.createPullRequest({
+                    const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
+                    const files = filterForFileNames_1.getFileChanges(jsonOutput);
+                    const pr = yield octokit.createPullRequest({
                         owner,
                         repo,
                         title: 'test repolinter title',
@@ -637,21 +671,19 @@ function run(disableRetry) {
                         base: "main",
                         head: `repolinter-${RUN_NUMBER}`,
                         changes: [{
-                                files: {
-                                    "": null
-                                },
+                                files,
                                 commit: "test commit message"
                             }]
                     });
-                    if (prResponse) {
-                        core.info(`Created PR: ${prResponse.data.html_url}`);
+                    if (pr) {
+                        core.info(`Created PR: ${pr.data.html_url}`);
                     }
                     else {
-                        core.info('No changes detected, skipping PR creation');
+                        core.info('No changes detected');
                     }
                 }
                 catch (error) {
-                    core.error(`Failed to create pull request${error.message}`);
+                    core.error(`Failed to create pull request: ${error.message}`);
                     throw error;
                 }
                 core.endGroup();
@@ -37483,6 +37515,8 @@ function useColors() {
 		return false;
 	}
 
+	let m;
+
 	// Is webkit? http://stackoverflow.com/a/16459606/376773
 	// document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
 	return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
@@ -37490,7 +37524,7 @@ function useColors() {
 		(typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
 		// Is firefox >= v31?
 		// https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+		(typeof navigator !== 'undefined' && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31) ||
 		// Double check webkit in userAgent just in case we are in a worker
 		(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
 }
@@ -37668,7 +37702,7 @@ function setup(env) {
 
 	/**
 	* Selects a color for a debug namespace
-	* @param {String} namespace The namespace string for the for the debug instance to be colored
+	* @param {String} namespace The namespace string for the debug instance to be colored
 	* @return {Number|String} An ANSI color code for the given namespace
 	* @api private
 	*/
@@ -37694,6 +37728,8 @@ function setup(env) {
 	function createDebug(namespace) {
 		let prevTime;
 		let enableOverride = null;
+		let namespacesCache;
+		let enabledCache;
 
 		function debug(...args) {
 			// Disabled?
@@ -37754,7 +37790,17 @@ function setup(env) {
 		Object.defineProperty(debug, 'enabled', {
 			enumerable: true,
 			configurable: false,
-			get: () => enableOverride === null ? createDebug.enabled(namespace) : enableOverride,
+			get: () => {
+				if (enableOverride !== null) {
+					return enableOverride;
+				}
+				if (namespacesCache !== createDebug.namespaces) {
+					namespacesCache = createDebug.namespaces;
+					enabledCache = createDebug.enabled(namespace);
+				}
+
+				return enabledCache;
+			},
 			set: v => {
 				enableOverride = v;
 			}
@@ -37783,6 +37829,7 @@ function setup(env) {
 	*/
 	function enable(namespaces) {
 		createDebug.save(namespaces);
+		createDebug.namespaces = namespaces;
 
 		createDebug.names = [];
 		createDebug.skips = [];
@@ -37800,7 +37847,7 @@ function setup(env) {
 			namespaces = split[i].replace(/\*/g, '.*?');
 
 			if (namespaces[0] === '-') {
-				createDebug.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+				createDebug.skips.push(new RegExp('^' + namespaces.slice(1) + '$'));
 			} else {
 				createDebug.names.push(new RegExp('^' + namespaces + '$'));
 			}
@@ -38106,11 +38153,11 @@ function getDate() {
 }
 
 /**
- * Invokes `util.format()` with the specified arguments and writes to stderr.
+ * Invokes `util.formatWithOptions()` with the specified arguments and writes to stderr.
  */
 
 function log(...args) {
-	return process.stderr.write(util.format(...args) + '\n');
+	return process.stderr.write(util.formatWithOptions(exports.inspectOpts, ...args) + '\n');
 }
 
 /**
@@ -77862,7 +77909,7 @@ var y = d * 365.25;
  * @api public
  */
 
-module.exports = function(val, options) {
+module.exports = function (val, options) {
   options = options || {};
   var type = typeof val;
   if (type === 'string' && val.length > 0) {

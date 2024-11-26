@@ -11,6 +11,7 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
+import { getFileChanges } from './filterForFileNames'
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -141,9 +142,10 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       const [owner, repo] = REPO.split('/')
 
       try {
+        const jsonOutput = jsonFormatter.formatOutput(result, true);
+        const files = getFileChanges(jsonOutput);
 
-        // Create or update PR using octokit-plugin-create-pull-request
-        const prResponse = await octokit.createPullRequest({
+        const pr = await octokit.createPullRequest({
           owner,
           repo,
           title: 'test repolinter title',
@@ -151,20 +153,18 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           base: "main",
           head: `repolinter-${RUN_NUMBER}`,
           changes: [{
-            files: {
-              "": null
-            },
+            files,
             commit: "test commit message"
           }]
         })
 
-        if (prResponse) {
-          core.info(`Created PR: ${prResponse.data.html_url}`)
+        if (pr) {
+          core.info(`Created PR: ${pr.data.html_url}`)
         } else {
-          core.info('No changes detected, skipping PR creation')
+          core.info('No changes detected')
         }
       } catch (error) {
-        core.error(`Failed to create pull request${(error as Error).message}`)
+        core.error(`Failed to create pull request: ${(error as Error).message}`)
         throw error
       }
     
