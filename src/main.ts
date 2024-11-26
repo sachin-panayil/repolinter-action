@@ -90,13 +90,6 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     core.startGroup('Repolinter Output')
     core.info(resultFormatter.formatOutput(result, true))
     core.endGroup()
-
-    const result2 = await lint(DIRECTORY, undefined, config, true)
-    core.debug(JSON.stringify(result2))
-    // print the formatted result
-    core.startGroup('Repolinter Output 2')
-    core.info(resultFormatter.formatOutput(result2, true))
-    core.endGroup()
     // if repolinter errored, set failed
     if (result.errored)
       core.setFailed(`Repolinter failed with error: ${result.errMsg}`)
@@ -145,43 +138,26 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         }
       }) // wondering if this could be initialized before as we use this line already. keep it DRY
     
-      const [owner, repo] = REPO.split('/') // same here. keep it DRY
-    
-      /* 
-      at this point, we should be checking what files should be commited.
-      im thinking that we call the JSONFormatter for the repolinter result.
-      we parse this JSON to find out what rules have passes.
-      specifically, what files dont exist. this might change tho depending on what tier we are using so this will need some more thinking.
-      after we parse the data and see what files are missing, we can supply templates that live within this repo
-
-      the tiers dont matter as the repolinter.json will be in the respective repos no matter what.
-      */
-
-      // const fileNames = filterForFiles(jsonFormatter.formatOutput(result, true))
-
-      /*
-      once we get the file names, we prob need a second helper function that returns an object
-      the key would be the fileName constant adn the value would be templates for each one of them
-      trying to figure out how this would work in terms of each tiers README and the differences between them
-      since each value would be different depending on which tier your on
-      */
-      
-      // console.log(fileNames)
-
       core.startGroup('Sending a PR')
+
+      // check for missing content
+      const result2 = await lint(DIRECTORY, undefined, config, true)
+      core.debug(JSON.stringify(result2))
+      // print the formatted result
+      core.startGroup('Repolinter Output 2')
+      core.info(resultFormatter.formatOutput(result2, true))
+      core.endGroup()
 
       const git: SimpleGit = simpleGit();
       
       try {
-          await git.checkoutLocalBranch("test-branch");
+          await git.checkoutLocalBranch(`test-branch-${RUN_NUMBER}`);
           
           await git.add('.');
           
-          // Create commit
           await git.commit("this is a test commit");
           
-          // Push to remote
-          await git.push('origin', "test-branch", ['--set-upstream']);
+          await git.push('origin', `test-branch-${RUN_NUMBER}`, ['--set-upstream']);
 
           core.info("Pull Request created");
         
