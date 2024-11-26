@@ -150,7 +150,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           head: `repolinter/updates-${RUN_NUMBER}`,
           changes: [{
             files: {
-              '.': '.'
+              'test.md': 'yo yo yo'
             },
             commit: 'Repolinter updates'
           }]

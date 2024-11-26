@@ -637,7 +637,7 @@ function run(disableRetry) {
                         head: `repolinter/updates-${RUN_NUMBER}`,
                         changes: [{
                                 files: {
-                                    '.': '.'
+                                    'test.md': 'yo yo yo'
                                 },
                                 commit: 'Repolinter updates'
                             }]
