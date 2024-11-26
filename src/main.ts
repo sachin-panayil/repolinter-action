@@ -149,9 +149,13 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       core.endGroup()
 
       const git: SimpleGit = simpleGit();
+
+      const [owner, repo] = REPO.split('/')
       
       try {
-          await git.raw(['config', '--global', '--add', 'safe.directory', '/github/workspace']);
+          await git.raw(['config', '--add', 'safe.directory', '/github/workspace']);
+          await git.raw(['config', '--add', 'user.email', "sachinpanayil01@gmail.com"]);
+          await git.raw(['config', '--add', 'user.name', `${owner}`]);
 
           await git.checkoutLocalBranch(`test-branch-${RUN_NUMBER}`);
           
