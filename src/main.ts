@@ -153,7 +153,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       const [owner, repo] = REPO.split('/')
       
       try {
-          await git.raw(['config', '--add', 'safe.directory', '/github/workspace']);
+          await git.raw(['config', '--global', '--add', 'safe.directory', '/github/workspace']);
           await git.raw(['config', '--add', 'user.email', "sachinpanayil01@gmail.com"]);
           await git.raw(['config', '--add', 'user.name', `${owner}`]);
 
