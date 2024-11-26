@@ -141,24 +141,25 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       const [owner, repo] = REPO.split('/')
 
       try {
-        const pullRequest = await octokit.createPullRequest({
-          owner,
-          repo,
-          title: 'Repolinter Updates',
-          body: 'This PR contains automated updates from Repolinter checks. It wil also include a markdown of the actual output in a bit.',
-          base: 'main',
-          head: `repolinter/updates-${RUN_NUMBER}`,
-          changes: [{
-            files: {
-              'test.md': 'yo yo yo'
-            },
-            commit: 'Repolinter updates'
-          }]
-        })
-    
-        if (pullRequest) {
-          core.info(`Pull request created: ${pullRequest.data.html_url}`)
-        }
+        const { execSync } = require('child_process');
+        
+        const branchName = `repolinter/updates-${RUN_NUMBER}`;
+        execSync(`git checkout -b ${branchName}`);
+        
+        execSync('git add .');
+        execSync('git commit -m "Repolinter automated updates"');
+        
+        execSync(`git push origin ${branchName}`);
+        
+        const prOutput = execSync(
+          `gh pr create \
+           --title "Repolinter Automated Updates" \
+           --body "This PR contains automated updates from Repolinter checks" \
+           --base main \
+           --head ${branchName}`
+        ).toString();
+        
+        core.info(`Pull request created: ${prOutput}`);
       } catch (error) {
         core.error('Failed to create pull request')
         throw error
