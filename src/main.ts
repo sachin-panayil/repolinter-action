@@ -164,7 +164,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           core.info('No changes detected, skipping PR creation')
         }
       } catch (error) {
-        core.error('Failed to create pull request')
+        core.error(`Failed to create pull request${(error as Error).message}`)
         throw error
       }
     

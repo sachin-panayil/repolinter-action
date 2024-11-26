@@ -651,7 +651,7 @@ function run(disableRetry) {
                     }
                 }
                 catch (error) {
-                    core.error('Failed to create pull request');
+                    core.error(`Failed to create pull request${error.message}`);
                     throw error;
                 }
                 core.endGroup();
