@@ -1,3 +1,5 @@
+// change file name to pullRequestHelpers
+
 interface RepoLintResult {
     results: RuleResult[];
 }
@@ -17,6 +19,7 @@ interface RuleConfig {
     globsAny: string[]
 }
 
+// step 1 is to get the name of the files that are missing
 export function filterForFiles(jsonString: string): string[] {
     try {
         const data: RepoLintResult = JSON.parse(jsonString);
@@ -37,4 +40,4 @@ export function filterForFiles(jsonString: string): string[] {
         console.error('Error parsing repolinter output:', error);
         return [];
     }
-}
+}                     

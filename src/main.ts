@@ -11,7 +11,7 @@ import {
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
-import {filterForFiles} from "./filterForFileNames"
+import simpleGit, { SimpleGit } from 'simple-git';
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -90,6 +90,13 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     core.startGroup('Repolinter Output')
     core.info(resultFormatter.formatOutput(result, true))
     core.endGroup()
+
+    const result2 = await lint(DIRECTORY, undefined, config, true)
+    core.debug(JSON.stringify(result2))
+    // print the formatted result
+    core.startGroup('Repolinter Output 2')
+    core.info(resultFormatter.formatOutput(result2, true))
+    core.endGroup()
     // if repolinter errored, set failed
     if (result.errored)
       core.setFailed(`Repolinter failed with error: ${result.errMsg}`)
@@ -150,7 +157,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       the tiers dont matter as the repolinter.json will be in the respective repos no matter what.
       */
 
-      const fileNames = filterForFiles(jsonFormatter.formatOutput(result, true))
+      // const fileNames = filterForFiles(jsonFormatter.formatOutput(result, true))
 
       /*
       once we get the file names, we prob need a second helper function that returns an object
@@ -159,32 +166,25 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       since each value would be different depending on which tier your on
       */
       
-      console.log(fileNames)
-      
+      // console.log(fileNames)
+
       core.startGroup('Sending a PR')
+
+      const git: SimpleGit = simpleGit();
       
       try {
-        const pr = await octokit.createPullRequest({
-          owner,
-          repo,
-          title: "test-PR", // find out proper language for this 
-          body: markdownFormatter.formatOutput(result, true), // this should be in a sepreate file tbh. should include guidance on next steps
-          head: `repolinter/run-${RUN_NUMBER}`, // not sure if we want to include run number in here but each branch has to be different
-          base: 'main', // include the base brnach found in inputs.ts and use 'main' as default
-          changes: [
-            {
-              // before we call the function, we should have the files ready to go
-              files: {
-                "test.md": "this is a test markdown but now with an edit so lets see what happens now",
-                "test2.md": "this is a test 2"
-              },
-              commit: "this is a test commit" // find out proper language for this
-            }
-          ]
-        });
-        if (pr) {
-          core.info(`Pull Request created: ${pr.data.html_url}`);
-        }
+          await git.checkoutLocalBranch("test-branch");
+          
+          await git.add('.');
+          
+          // Create commit
+          await git.commit("this is a test commit");
+          
+          // Push to remote
+          await git.push('origin', "test-branch", ['--set-upstream']);
+
+          core.info("Pull Request created");
+        
       } catch (error) {
         core.error(`Failed to create pull request: ${(error as Error).message}`);
         throw error;
