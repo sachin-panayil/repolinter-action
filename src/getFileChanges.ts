@@ -7,7 +7,7 @@ interface RepolinterResult {
             };
         };
         status: string;
-        lintResult: {
+        lintResult?: {
             message?: string;
             passed?: boolean;
         };
@@ -28,7 +28,7 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
             console.log('Lint Status:', result.lintResult?.passed);
             console.log('\n')
 
-            if (result.lintResult.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult.passed === false) ) {
+            if (result.lintResult?.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult?.passed === false) ) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
 
