@@ -1,7 +1,6 @@
 interface RepolinterResult {
     results: Array<{
         ruleInfo: {
-            ruleType: string;
             ruleConfig: {
                 ['file-name']?: string;
                 ['file-content']?: string;
@@ -9,9 +8,7 @@ interface RepolinterResult {
         };
         status: string;
         lintResult?: {
-            targets?: Array<{
-                path?: string;
-            }>;
+            message?: string;
         };
     }>;
 }
@@ -22,7 +19,7 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
         const files: { [key: string]: string } = {};
 
         for (const result of data.results) {
-            if (result.status === 'NOT_PASSED_ERROR') {
+            if (result.lintResult?.message === "Did not find a file matching the specified patterns") {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
 

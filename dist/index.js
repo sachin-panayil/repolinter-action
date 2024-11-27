@@ -332,11 +332,12 @@ main_1.default();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 function getFileChanges(jsonResult) {
+    var _a;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            if (result.status === 'NOT_PASSED_ERROR') {
+            if (((_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === "Did not find a file matching the specified patterns") {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {
