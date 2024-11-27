@@ -6,12 +6,13 @@ import {
   lint,
   resultFormatter,
   markdownFormatter,
-  jsonFormatter
+  jsonFormatter,
+  LintResult
 } from 'repolinter'
 import * as fs from 'fs'
 import getConfig from './getConfig'
 import createOrUpdateIssue from './createorUpdateIssue'
-import { getFileChanges } from './filterForFileNames'
+import { getFileChanges } from './getFileChanges'
 
 function getInputs(): {[key: string]: string} {
   return {
@@ -24,7 +25,8 @@ function getInputs(): {[key: string]: string} {
     OUTPUT_TYPE: core.getInput(ActionInputs.OUTPUT_TYPE, {required: true}),
     OUTPUT_NAME: core.getInput(ActionInputs.OUTPUT_NAME, {required: true}),
     LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
-    LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true})
+    LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
+    BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true})
   }
 }
 
@@ -35,6 +37,25 @@ function getRunNumber(): number {
       `Found invalid GITHUB_RUN_NUMBER "${process.env['GITHUB_RUN_NUMBER']}"`
     )
   return runNum
+}
+
+function getPRBody(result: LintResult): string {
+  const content = markdownFormatter.formatOutput(result, true)
+  return `
+  ### General Guidance
+  This text is going to be some guidance on what to do now that you have a PR. \n
+  You can either push as is or combine what you have already or do something else. \n
+  For sure have to think of best language for this. \n
+  The raw results of the repolinter can be found below. \n
+
+  <details>
+    <summary>
+      ### Repolinter Results
+    </summary>
+
+    ${content}
+  </details>
+  `
 }
 
 export default async function run(disableRetry?: boolean): Promise<void> {
@@ -51,7 +72,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       OUTPUT_TYPE,
       OUTPUT_NAME,
       LABEL_NAME,
-      LABEL_COLOR
+      LABEL_COLOR,
+      BASE_BRANCH
     } = getInputs()
     const RUN_NUMBER = getRunNumber()
     // verify the directory exists and is a directory
@@ -136,19 +158,10 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           warn: core.warning,
           error: core.error
         }
-      }) // wondering if this could be initialized before as we use this line already. keep it DRY
-      
-
-
-      core.startGroup("Changes to be Sent")
-      const jsonOutput = jsonFormatter.formatOutput(result, true);
-      const files = getFileChanges(jsonOutput);
-
-      core.info(JSON.stringify(files, null, 2))
-      core.endGroup()
+      })
 
       core.startGroup('Sending a PR')
-
+      
       try {
         const [owner, repo] = REPO.split('/')
         const jsonOutput = jsonFormatter.formatOutput(result, true);
@@ -158,13 +171,13 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           const pr = await octokit.createPullRequest({
             owner,
             repo,
-            title: 'test repolinter title',
-            body: "this will haev the output in a bit",
-            base: "main",
-            head: `repolinter-${RUN_NUMBER}`,
+            title: `Repolinter Results - #${RUN_NUMBER}`,
+            body: getPRBody(result),
+            base: BASE_BRANCH || "main",
+            head: `repolinter-results-#${RUN_NUMBER}`,
             changes: [{
               files,
-              commit: "test commit message"
+              commit: `repolinter-results-#${RUN_NUMBER}`
             }]
           })
 

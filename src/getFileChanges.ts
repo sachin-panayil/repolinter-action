@@ -2,13 +2,13 @@ interface RepolinterResult {
     results: Array<{
         ruleInfo: {
             ruleConfig: {
-                ['file-name']?: string;
-                ['file-content']?: string;
+                ['file-name']: string;
+                ['file-content']: string;
             };
         };
         status: string;
         lintResult: {
-            message?: string;
+            message: string;
         };
     }>;
 }
@@ -19,14 +19,6 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
         const files: { [key: string]: string } = {};
 
         for (const result of data.results) {
-            console.log('\n--- Result ---');
-            console.log('Rule Name:', result.ruleInfo);
-            console.log('Status:', result.status);
-            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
-            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
-            console.log('Lint Result:', result.lintResult);
-            console.log('Lint Message:', result.lintResult.message);
-
             if (result.lintResult.message?.startsWith("Did not find")) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';

@@ -324,48 +324,6 @@ main_1.default();
 
 /***/ }),
 
-/***/ 16845:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getFileChanges = void 0;
-function getFileChanges(jsonResult) {
-    var _a;
-    try {
-        const data = JSON.parse(jsonResult);
-        const files = {};
-        for (const result of data.results) {
-            console.log('\n--- Result ---');
-            console.log('Rule Name:', result.ruleInfo);
-            console.log('Status:', result.status);
-            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
-            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
-            console.log('Lint Result:', result.lintResult);
-            console.log('Lint Message:', result.lintResult.message);
-            if ((_a = result.lintResult.message) === null || _a === void 0 ? void 0 : _a.startsWith("Did not find")) {
-                const fileName = result.ruleInfo.ruleConfig['file-name'];
-                const content = result.ruleInfo.ruleConfig['file-content'] || '';
-                if (fileName) {
-                    files[fileName] = files[fileName]
-                        ? files[fileName] + '\n' + content
-                        : content;
-                }
-            }
-        }
-        return files;
-    }
-    catch (error) {
-        console.error('Error parsing repolinter results:', error);
-        return {};
-    }
-}
-exports.getFileChanges = getFileChanges;
-//# sourceMappingURL=filterForFileNames.js.map
-
-/***/ }),
-
 /***/ 69801:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -488,6 +446,41 @@ exports.default = getConfig;
 
 /***/ }),
 
+/***/ 64912:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getFileChanges = void 0;
+function getFileChanges(jsonResult) {
+    var _a;
+    try {
+        const data = JSON.parse(jsonResult);
+        const files = {};
+        for (const result of data.results) {
+            if ((_a = result.lintResult.message) === null || _a === void 0 ? void 0 : _a.startsWith("Did not find")) {
+                const fileName = result.ruleInfo.ruleConfig['file-name'];
+                const content = result.ruleInfo.ruleConfig['file-content'] || '';
+                if (fileName) {
+                    files[fileName] = files[fileName]
+                        ? files[fileName] + '\n' + content
+                        : content;
+                }
+            }
+        }
+        return files;
+    }
+    catch (error) {
+        console.error('Error parsing repolinter results:', error);
+        return {};
+    }
+}
+exports.getFileChanges = getFileChanges;
+//# sourceMappingURL=getFileChanges.js.map
+
+/***/ }),
+
 /***/ 37280:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -554,7 +547,7 @@ const repolinter_1 = __nccwpck_require__(70430);
 const fs = __importStar(__nccwpck_require__(35747));
 const getConfig_1 = __importDefault(__nccwpck_require__(69801));
 const createorUpdateIssue_1 = __importDefault(__nccwpck_require__(82356));
-const filterForFileNames_1 = __nccwpck_require__(16845);
+const getFileChanges_1 = __nccwpck_require__(64912);
 function getInputs() {
     return {
         DIRECTORY: core.getInput("directory" /* DIRECTORY */, { required: true }),
@@ -566,7 +559,8 @@ function getInputs() {
         OUTPUT_TYPE: core.getInput("output_type" /* OUTPUT_TYPE */, { required: true }),
         OUTPUT_NAME: core.getInput("output_name" /* OUTPUT_NAME */, { required: true }),
         LABEL_NAME: core.getInput("label_name" /* LABEL_NAME */, { required: true }),
-        LABEL_COLOR: core.getInput("label_color" /* LABEL_COLOR */, { required: true })
+        LABEL_COLOR: core.getInput("label_color" /* LABEL_COLOR */, { required: true }),
+        BASE_BRANCH: core.getInput("base_branch" /* BASE_BRANCH */, { required: true })
     };
 }
 function getRunNumber() {
@@ -575,12 +569,30 @@ function getRunNumber() {
         throw new Error(`Found invalid GITHUB_RUN_NUMBER "${process.env['GITHUB_RUN_NUMBER']}"`);
     return runNum;
 }
+function getPRBody(result) {
+    const content = repolinter_1.markdownFormatter.formatOutput(result, true);
+    return `
+  ### General Guidance
+  This text is going to be some guidance on what to do now that you have a PR. \n
+  You can either push as is or combine what you have already or do something else. \n
+  For sure have to think of best language for this. \n
+  The raw results of the repolinter can be found below. \n
+
+  <details>
+    <summary>
+      ### Repolinter Results
+    </summary>
+
+    ${content}
+  </details>
+  `;
+}
 function run(disableRetry) {
     return __awaiter(this, void 0, void 0, function* () {
         // load the configuration from file or url, depending on which one is configured
         try {
             // get all inputs
-            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR } = getInputs();
+            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH } = getInputs();
             const RUN_NUMBER = getRunNumber();
             // verify the directory exists and is a directory
             try {
@@ -667,28 +679,23 @@ function run(disableRetry) {
                         warn: core.warning,
                         error: core.error
                     }
-                }); // wondering if this could be initialized before as we use this line already. keep it DRY
-                core.startGroup("Changes to be Sent");
-                const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
-                const files = filterForFileNames_1.getFileChanges(jsonOutput);
-                core.info(JSON.stringify(files, null, 2));
-                core.endGroup();
+                });
                 core.startGroup('Sending a PR');
                 try {
                     const [owner, repo] = REPO.split('/');
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
-                    const files = filterForFileNames_1.getFileChanges(jsonOutput);
+                    const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
                         const pr = yield octokit.createPullRequest({
                             owner,
                             repo,
-                            title: 'test repolinter title',
-                            body: "this will haev the output in a bit",
-                            base: "main",
-                            head: `repolinter-${RUN_NUMBER}`,
+                            title: `Repolinter Results - #${RUN_NUMBER}`,
+                            body: getPRBody(result),
+                            base: BASE_BRANCH || "main",
+                            head: `repolinter-results-#${RUN_NUMBER}`,
                             changes: [{
                                     files,
-                                    commit: "test commit message"
+                                    commit: `repolinter-results-#${RUN_NUMBER}`
                                 }]
                         });
                         if (pr) {
