@@ -141,32 +141,41 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       core.startGroup('Sending a PR')
       const [owner, repo] = REPO.split('/')
 
-      try {
-        const jsonOutput = jsonFormatter.formatOutput(result, true);
-        const files = getFileChanges(jsonOutput);
+      const jsonOutput = jsonFormatter.formatOutput(result, true);
+      const files = getFileChanges(jsonOutput);
 
-        const pr = await octokit.createPullRequest({
-          owner,
-          repo,
-          title: 'test repolinter title',
-          body: "this will haev the output in a bit",
-          base: "main",
-          head: `repolinter-${RUN_NUMBER}`,
-          changes: [{
-            files,
-            commit: "test commit message"
-          }]
-        })
+      console.log(files)
 
-        if (pr) {
-          core.info(`Created PR: ${pr.data.html_url}`)
-        } else {
-          core.info('No changes detected')
-        }
-      } catch (error) {
-        core.error(`Failed to create pull request: ${(error as Error).message}`)
-        throw error
-      }
+      // try {
+      //   const jsonOutput = jsonFormatter.formatOutput(result, true);
+      //   const files = getFileChanges(jsonOutput);
+
+      //   if (files.size === "") {
+      //     const pr = await octokit.createPullRequest({
+      //       owner,
+      //       repo,
+      //       title: 'test repolinter title',
+      //       body: "this will haev the output in a bit",
+      //       base: "main",
+      //       head: `repolinter-${RUN_NUMBER}`,
+      //       changes: [{
+      //         files,
+      //         commit: "test commit message"
+      //       }]
+      //     })
+
+      //     if (pr) {
+      //       core.info(`Created PR: ${pr.data.html_url}`)
+      //     } 
+
+      //   } else {
+      //     console.log("No changes detected")
+      //   }
+
+      // } catch (error) {
+      //   core.error(`Failed to create pull request: ${(error as Error).message}`)
+      //   throw error
+      // }
     
       core.endGroup()
       process.exitCode = 0
