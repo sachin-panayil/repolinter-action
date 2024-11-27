@@ -454,7 +454,7 @@ exports.default = getConfig;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 function getFileChanges(jsonResult) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    var _a, _b, _c;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
@@ -464,9 +464,9 @@ function getFileChanges(jsonResult) {
             console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
             console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
             console.log('Lint Message:', (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message);
-            console.log('Lint Target Message:', (_d = (_c = (_b = result.lintResult) === null || _b === void 0 ? void 0 : _b.targets) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.message);
+            console.log('Lint Status:', (_b = result.lintResult) === null || _b === void 0 ? void 0 : _b.passed);
             console.log('\n');
-            if (((_e = result.lintResult.message) === null || _e === void 0 ? void 0 : _e.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && ((_j = (_h = (_g = (_f = result.lintResult) === null || _f === void 0 ? void 0 : _f.targets) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.message) === null || _j === void 0 ? void 0 : _j.startsWith("Doesn't contain")))) {
+            if (((_c = result.lintResult.message) === null || _c === void 0 ? void 0 : _c.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && result.lintResult.passed === false)) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {

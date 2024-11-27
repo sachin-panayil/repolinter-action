@@ -9,9 +9,7 @@ interface RepolinterResult {
         status: string;
         lintResult: {
             message?: string;
-            targets?: Array<{
-                message?: string;
-            }>;
+            passed?: boolean;
         };
     }>;
 }
@@ -27,10 +25,10 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
             console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
             console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
             console.log('Lint Message:', result.lintResult?.message);
-            console.log('Lint Target Message:', result.lintResult?.targets?.[0]?.message);
+            console.log('Lint Status:', result.lintResult?.passed);
             console.log('\n')
 
-            if (result.lintResult.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult?.targets?.[0]?.message?.startsWith("Doesn't contain")) ) {
+            if (result.lintResult.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult.passed === false) ) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
 
