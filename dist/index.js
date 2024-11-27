@@ -693,7 +693,7 @@ function run(disableRetry) {
                             repo,
                             title: `Repolinter Results`,
                             body: getPRBody(result),
-                            base: BASE_BRANCH || "main",
+                            base: BASE_BRANCH,
                             head: `repolinter-results-#${RUN_NUMBER}`,
                             changes: [{
                                     files,
