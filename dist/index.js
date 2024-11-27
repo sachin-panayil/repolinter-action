@@ -659,37 +659,41 @@ function run(disableRetry) {
                         error: core.error
                     }
                 }); // wondering if this could be initialized before as we use this line already. keep it DRY
-                core.startGroup('Sending a PR');
-                const [owner, repo] = REPO.split('/');
+                core.startGroup("Changes to be Sent");
                 const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                 const files = filterForFileNames_1.getFileChanges(jsonOutput);
-                console.log(files);
-                // try {
-                //   const jsonOutput = jsonFormatter.formatOutput(result, true);
-                //   const files = getFileChanges(jsonOutput);
-                //   if (files.size === "") {
-                //     const pr = await octokit.createPullRequest({
-                //       owner,
-                //       repo,
-                //       title: 'test repolinter title',
-                //       body: "this will haev the output in a bit",
-                //       base: "main",
-                //       head: `repolinter-${RUN_NUMBER}`,
-                //       changes: [{
-                //         files,
-                //         commit: "test commit message"
-                //       }]
-                //     })
-                //     if (pr) {
-                //       core.info(`Created PR: ${pr.data.html_url}`)
-                //     } 
-                //   } else {
-                //     console.log("No changes detected")
-                //   }
-                // } catch (error) {
-                //   core.error(`Failed to create pull request: ${(error as Error).message}`)
-                //   throw error
-                // }
+                core.info(JSON.stringify(files, null, 2));
+                core.endGroup();
+                core.startGroup('Sending a PR');
+                try {
+                    const [owner, repo] = REPO.split('/');
+                    const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
+                    const files = filterForFileNames_1.getFileChanges(jsonOutput);
+                    if (files.size === "") {
+                        const pr = yield octokit.createPullRequest({
+                            owner,
+                            repo,
+                            title: 'test repolinter title',
+                            body: "this will haev the output in a bit",
+                            base: "main",
+                            head: `repolinter-${RUN_NUMBER}`,
+                            changes: [{
+                                    files,
+                                    commit: "test commit message"
+                                }]
+                        });
+                        if (pr) {
+                            core.info(`Created PR: ${pr.data.html_url}`);
+                        }
+                    }
+                    else {
+                        console.log("No changes detected");
+                    }
+                }
+                catch (error) {
+                    core.error(`Failed to create pull request: ${error.message}`);
+                    throw error;
+                }
                 core.endGroup();
                 process.exitCode = 0;
             }

@@ -138,44 +138,48 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         }
       }) // wondering if this could be initialized before as we use this line already. keep it DRY
       
-      core.startGroup('Sending a PR')
-      const [owner, repo] = REPO.split('/')
 
+
+      core.startGroup("Changes to be Sent")
       const jsonOutput = jsonFormatter.formatOutput(result, true);
       const files = getFileChanges(jsonOutput);
 
-      console.log(files)
+      core.info(JSON.stringify(files, null, 2))
+      core.endGroup()
 
-      // try {
-      //   const jsonOutput = jsonFormatter.formatOutput(result, true);
-      //   const files = getFileChanges(jsonOutput);
+      core.startGroup('Sending a PR')
 
-      //   if (files.size === "") {
-      //     const pr = await octokit.createPullRequest({
-      //       owner,
-      //       repo,
-      //       title: 'test repolinter title',
-      //       body: "this will haev the output in a bit",
-      //       base: "main",
-      //       head: `repolinter-${RUN_NUMBER}`,
-      //       changes: [{
-      //         files,
-      //         commit: "test commit message"
-      //       }]
-      //     })
+      try {
+        const [owner, repo] = REPO.split('/')
+        const jsonOutput = jsonFormatter.formatOutput(result, true);
+        const files = getFileChanges(jsonOutput);
 
-      //     if (pr) {
-      //       core.info(`Created PR: ${pr.data.html_url}`)
-      //     } 
+        if (files.size === "") {
+          const pr = await octokit.createPullRequest({
+            owner,
+            repo,
+            title: 'test repolinter title',
+            body: "this will haev the output in a bit",
+            base: "main",
+            head: `repolinter-${RUN_NUMBER}`,
+            changes: [{
+              files,
+              commit: "test commit message"
+            }]
+          })
 
-      //   } else {
-      //     console.log("No changes detected")
-      //   }
+          if (pr) {
+            core.info(`Created PR: ${pr.data.html_url}`)
+          } 
 
-      // } catch (error) {
-      //   core.error(`Failed to create pull request: ${(error as Error).message}`)
-      //   throw error
-      // }
+        } else {
+          console.log("No changes detected")
+        }
+
+      } catch (error) {
+        core.error(`Failed to create pull request: ${(error as Error).message}`)
+        throw error
+      }
     
       core.endGroup()
       process.exitCode = 0
