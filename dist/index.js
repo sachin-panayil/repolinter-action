@@ -454,12 +454,18 @@ exports.default = getConfig;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 function getFileChanges(jsonResult) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            if (((_b = (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && ((_e = (_d = (_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.targets) === null || _d === void 0 ? void 0 : _d.message) === null || _e === void 0 ? void 0 : _e.startsWith("Doesn't contain")))) {
+            console.log('\n--- Result ---');
+            console.log('Status:', result.status);
+            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
+            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
+            console.log('Lint Message:', (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message);
+            console.log('Lint Target Message:', (_c = (_b = result.lintResult) === null || _b === void 0 ? void 0 : _b.targets) === null || _c === void 0 ? void 0 : _c.message);
+            if (((_e = (_d = result.lintResult) === null || _d === void 0 ? void 0 : _d.message) === null || _e === void 0 ? void 0 : _e.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && ((_h = (_g = (_f = result.lintResult) === null || _f === void 0 ? void 0 : _f.targets) === null || _g === void 0 ? void 0 : _g.message) === null || _h === void 0 ? void 0 : _h.startsWith("Doesn't contain")))) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {
@@ -687,6 +693,7 @@ function run(disableRetry) {
                     const [owner, repo] = REPO.split('/');
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
+                    console.log(JSON.stringify(files, null, 2));
                     if (Object.keys(files).length !== 0) {
                         const pr = yield octokit.createPullRequest({
                             owner,

@@ -169,6 +169,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         const jsonOutput = jsonFormatter.formatOutput(result, true);
         const files = getFileChanges(jsonOutput);
 
+        console.log(JSON.stringify(files, null, 2))
+
         if (Object.keys(files).length !== 0) {
           const pr = await octokit.createPullRequest({
             owner,

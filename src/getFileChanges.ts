@@ -22,6 +22,13 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
         const files: { [key: string]: string } = {};
 
         for (const result of data.results) {
+            console.log('\n--- Result ---');
+            console.log('Status:', result.status);
+            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
+            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
+            console.log('Lint Message:', result.lintResult?.message);
+            console.log('Lint Target Message:', result.lintResult?.targets?.message);
+
             if (result.lintResult?.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult?.targets?.message?.startsWith("Doesn't contain")) ) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
