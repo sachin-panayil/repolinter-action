@@ -454,12 +454,12 @@ exports.default = getConfig;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 function getFileChanges(jsonResult) {
-    var _a, _b;
+    var _a, _b, _c, _d, _e;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            if ((_b = (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.startsWith("Did not find")) {
+            if (((_b = (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && ((_e = (_d = (_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.targets) === null || _d === void 0 ? void 0 : _d.message) === null || _e === void 0 ? void 0 : _e.startsWith("Doesn't contain")))) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {

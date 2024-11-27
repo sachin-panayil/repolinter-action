@@ -9,6 +9,9 @@ interface RepolinterResult {
         status: string;
         lintResult?: {
             message?: string;
+            targets?: {
+                message?: string
+            }
         };
     }>;
 }
@@ -19,7 +22,7 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
         const files: { [key: string]: string } = {};
 
         for (const result of data.results) {
-            if (result.lintResult?.message?.startsWith("Did not find")) {
+            if (result.lintResult?.message?.startsWith("Did not find") || (result.status === "NOT_PASSED_ERROR" && result.lintResult?.targets?.message?.startsWith("Doesn't contain")) ) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
 
