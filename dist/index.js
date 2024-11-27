@@ -337,12 +337,16 @@ function getFileChanges(jsonResult) {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            console.log(`THESE ARE THE RESULTS: ${result}`);
-            if (((_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === "Did not find a file matching the specified patterns") {
+            console.log('\n--- Result ---');
+            console.log('Rule Name:', result.ruleInfo);
+            console.log('Status:', result.status);
+            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
+            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
+            console.log('Lint Result:', result.lintResult);
+            console.log('Lint Message:', result.lintResult.message);
+            if ((_a = result.lintResult.message) === null || _a === void 0 ? void 0 : _a.startsWith("Did not find")) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
-                console.log(`THESE ARE THE FILE NAMES: ${fileName}`);
-                console.log(`THESE ARE THE FILE CONTENTS: ${content}`);
                 if (fileName) {
                     files[fileName] = files[fileName]
                         ? files[fileName] + '\n' + content
@@ -674,7 +678,7 @@ function run(disableRetry) {
                     const [owner, repo] = REPO.split('/');
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = filterForFileNames_1.getFileChanges(jsonOutput);
-                    if (files.size !== "") {
+                    if (Object.keys(files).length !== 0) {
                         const pr = yield octokit.createPullRequest({
                             owner,
                             repo,

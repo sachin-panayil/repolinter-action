@@ -7,7 +7,7 @@ interface RepolinterResult {
             };
         };
         status: string;
-        lintResult?: {
+        lintResult: {
             message?: string;
         };
     }>;
@@ -19,13 +19,17 @@ export function getFileChanges(jsonResult: string): { [key: string]: string } {
         const files: { [key: string]: string } = {};
 
         for (const result of data.results) {
-            console.log(`THESE ARE THE RESULTS: ${result}`)
-            if (result.lintResult?.message === "Did not find a file matching the specified patterns") {
+            console.log('\n--- Result ---');
+            console.log('Rule Name:', result.ruleInfo);
+            console.log('Status:', result.status);
+            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
+            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
+            console.log('Lint Result:', result.lintResult);
+            console.log('Lint Message:', result.lintResult.message);
+
+            if (result.lintResult.message?.startsWith("Did not find")) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
-
-                console.log(`THESE ARE THE FILE NAMES: ${fileName}`)
-                console.log(`THESE ARE THE FILE CONTENTS: ${content}`)
 
                 if (fileName) {
                     files[fileName] = files[fileName] 
