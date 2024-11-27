@@ -454,12 +454,12 @@ exports.default = getConfig;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 function getFileChanges(jsonResult) {
-    var _a;
+    var _a, _b;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            if ((_a = result.lintResult.message) === null || _a === void 0 ? void 0 : _a.startsWith("Did not find")) {
+            if ((_b = (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.startsWith("Did not find")) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const content = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {
@@ -572,15 +572,17 @@ function getRunNumber() {
 function getPRBody(result) {
     const content = repolinter_1.markdownFormatter.formatOutput(result, true);
     return `
-  ### General Guidance
+  # General Guidance
   This text is going to be some guidance on what to do now that you have a PR. \n
   You can either push as is or combine what you have already or do something else. \n
   For sure have to think of best language for this. \n
   The raw results of the repolinter can be found below. \n
 
+  ---
+
   <details>
     <summary>
-      ### Repolinter Results
+      Repolinter Results
     </summary>
 
     ${content}
@@ -689,7 +691,7 @@ function run(disableRetry) {
                         const pr = yield octokit.createPullRequest({
                             owner,
                             repo,
-                            title: `Repolinter Results - #${RUN_NUMBER}`,
+                            title: `Repolinter Results`,
                             body: getPRBody(result),
                             base: BASE_BRANCH || "main",
                             head: `repolinter-results-#${RUN_NUMBER}`,

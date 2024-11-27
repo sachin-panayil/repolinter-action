@@ -42,15 +42,17 @@ function getRunNumber(): number {
 function getPRBody(result: LintResult): string {
   const content = markdownFormatter.formatOutput(result, true)
   return `
-  ### General Guidance
+  # General Guidance
   This text is going to be some guidance on what to do now that you have a PR. \n
   You can either push as is or combine what you have already or do something else. \n
   For sure have to think of best language for this. \n
   The raw results of the repolinter can be found below. \n
 
+  ---
+
   <details>
     <summary>
-      ### Repolinter Results
+      Repolinter Results
     </summary>
 
     ${content}
@@ -171,7 +173,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           const pr = await octokit.createPullRequest({
             owner,
             repo,
-            title: `Repolinter Results - #${RUN_NUMBER}`,
+            title: `Repolinter Results`,
             body: getPRBody(result),
             base: BASE_BRANCH || "main",
             head: `repolinter-results-#${RUN_NUMBER}`,
