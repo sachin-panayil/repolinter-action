@@ -474,32 +474,25 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
 const fs = __importStar(__nccwpck_require__(35747));
 function getFileChanges(jsonResult) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     try {
         const data = JSON.parse(jsonResult);
         const files = {};
         for (const result of data.results) {
-            console.log('\n--- Result ---');
-            console.log('Status:', result.status);
-            console.log('File Name:', result.ruleInfo.ruleConfig['file-name']);
-            console.log('File Content:', result.ruleInfo.ruleConfig['file-content']);
-            console.log('Lint Message:', (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message);
-            console.log('Lint Status:', (_b = result.lintResult) === null || _b === void 0 ? void 0 : _b.passed);
-            console.log('\n');
-            if (((_d = (_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.message) === null || _d === void 0 ? void 0 : _d.startsWith("Did not find")) ||
-                (result.status === "NOT_PASSED_ERROR" && ((_e = result.lintResult) === null || _e === void 0 ? void 0 : _e.passed) === false)) {
+            const fileName = result.ruleInfo.ruleConfig['file-name'];
+            if (fileName && fs.existsSync(fileName)) {
+                files[fileName] = fs.readFileSync(fileName, 'utf-8');
+            }
+        }
+        for (const result of data.results) {
+            if (((_b = (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.startsWith("Did not find")) ||
+                (result.status === "NOT_PASSED_ERROR" && ((_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.passed) === false)) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
                 const newContent = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {
-                    if (fs.existsSync(fileName)) {
-                        const existingContent = fs.readFileSync(fileName, 'utf-8');
-                        files[fileName] = `${existingContent}\n\n${newContent}`;
-                    }
-                    else {
-                        files[fileName] = files[fileName]
-                            ? files[fileName] + '\n' + newContent
-                            : newContent;
-                    }
+                    files[fileName] = files[fileName]
+                        ? `${files[fileName]} \n ${newContent}`
+                        : newContent;
                 }
             }
         }
