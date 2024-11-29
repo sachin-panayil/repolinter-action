@@ -447,12 +447,32 @@ exports.default = getConfig;
 /***/ }),
 
 /***/ 64912:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getFileChanges = void 0;
+const fs = __importStar(__nccwpck_require__(35747));
 function getFileChanges(jsonResult) {
     var _a, _b, _c, _d, _e;
     try {
@@ -466,13 +486,20 @@ function getFileChanges(jsonResult) {
             console.log('Lint Message:', (_a = result.lintResult) === null || _a === void 0 ? void 0 : _a.message);
             console.log('Lint Status:', (_b = result.lintResult) === null || _b === void 0 ? void 0 : _b.passed);
             console.log('\n');
-            if (((_d = (_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.message) === null || _d === void 0 ? void 0 : _d.startsWith("Did not find")) || (result.status === "NOT_PASSED_ERROR" && ((_e = result.lintResult) === null || _e === void 0 ? void 0 : _e.passed) === false)) {
+            if (((_d = (_c = result.lintResult) === null || _c === void 0 ? void 0 : _c.message) === null || _d === void 0 ? void 0 : _d.startsWith("Did not find")) ||
+                (result.status === "NOT_PASSED_ERROR" && ((_e = result.lintResult) === null || _e === void 0 ? void 0 : _e.passed) === false)) {
                 const fileName = result.ruleInfo.ruleConfig['file-name'];
-                const content = result.ruleInfo.ruleConfig['file-content'] || '';
+                const newContent = result.ruleInfo.ruleConfig['file-content'] || '';
                 if (fileName) {
-                    files[fileName] = files[fileName]
-                        ? files[fileName] + '\n' + content
-                        : content;
+                    if (fs.existsSync(fileName)) {
+                        const existingContent = fs.readFileSync(fileName, 'utf-8');
+                        files[fileName] = `${existingContent}\n\n${newContent}`;
+                    }
+                    else {
+                        files[fileName] = files[fileName]
+                            ? files[fileName] + '\n' + newContent
+                            : newContent;
+                    }
                 }
             }
         }
