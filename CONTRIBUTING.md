@@ -24,3 +24,8 @@ Keep in mind that when you submit your Pull Request, you'll need to sign the CLA
 
 For more information about CLAs, please check out Alex Russell’s excellent post,
 [“Why Do I Need to Sign This?”](https://infrequently.org/2008/06/why-do-i-need-to-sign-this/).
+
+
+
+## Public Domain
+Information about public domain status...
