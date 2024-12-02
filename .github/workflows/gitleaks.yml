@@ -1,13 +1,12 @@
-name: gitleaks
+name: Check for Secrets
 on:
-  pull_request:
-  push:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 4 * * *" # run once a day at 4 AM
+    push:
+        branches:
+          - 'main'
+
 jobs:
-  scan:
-    name: gitleaks
+  scan-for-secrets:
+    name: Run gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
