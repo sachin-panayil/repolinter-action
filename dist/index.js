@@ -714,7 +714,6 @@ function run(disableRetry) {
                     const [owner, repo] = REPO.split('/');
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
-                    console.log(JSON.stringify(files, null, 2));
                     if (Object.keys(files).length !== 0) {
                         const pr = yield octokit.createPullRequest({
                             owner,
