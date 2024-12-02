@@ -28,6 +28,7 @@ For more information about CLAs, please check out Alex Russell’s excellent pos
  
 ## Getting Started
 Initial setup steps for contributors... 
+this is what the project does
  
 ## Building Dependencies
 Steps to build project dependencies... 
