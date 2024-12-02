@@ -1,8 +1,7 @@
 name: Check for Secrets
 on:
+    pull_request:
     push:
-        branches:
-          - 'main'
 
 jobs:
   scan-for-secrets:
