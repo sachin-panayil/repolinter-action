@@ -599,19 +599,19 @@ function getRunNumber() {
 function getPRBody(result) {
     const content = repolinter_1.markdownFormatter.formatOutput(result, true);
     return `
-  # General Guidance
-  This text is going to be some guidance on what to do now that you have a PR. \n
-  You can either push as is or combine what you have already or do something else. \n
-  For sure have to think of best language for this. \n
-  The raw results of the repolinter can be found below. \n
+  ## Next Steps
+  ### Add Missing Information to the Documents
+  When viewing the changes of this Pull Request, files and sections have been added in order to bring this repository up to standards.\n
+  Using either this GitHub page or an IDE, please fill in the section with the proper information that is missing.\n
+  The body of the section will provide context and examples of how it should be filled out.\n
 
+  \n
+  The raw results of the repolinter can be found below.
   ---
-
   <details>
     <summary>
       Repolinter Results
     </summary>
-
     ${content}
   </details>
   `;
