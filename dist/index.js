@@ -601,13 +601,14 @@ function getPRBody(result) {
     return `
   ## Next Steps
   ### Add Missing Information to the Documents
-  When viewing the changes of this Pull Request, files and sections have been added in order to bring this repository up to standards.\n
-  Using either this GitHub page or an IDE, please fill in the section with the proper information that is missing.\n
-  The body of the section will provide context and examples of how it should be filled out.\n
+  - When viewing the changes of this Pull Request, files and sections have been added in order to bring this repository up to standards.\n
+  - Using either this GitHub page or an IDE, please fill in the section with the proper information that is missing.\n
+  - The body of the section will provide context and examples of how it should be filled out.\n
+  ---
 
   \n
-  The raw results of the repolinter can be found below.
-  ---
+  ### The raw results of the repolinter can be found below.
+
   <details>
     <summary>
       Repolinter Results

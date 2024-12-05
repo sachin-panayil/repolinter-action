@@ -9,7 +9,7 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts __tests__/**/*.ts --fix",
-    "package": "export NODE_OPTIONS=--openssl-legacy-provider && ncc build lib/entry.js --source-map --license licenses.txt",
+    "package": "export NODE_OPTIONS=--openssl-legacy-provider && ncc build --source-map",
     "test": "jest",
     "release": "semantic-release",
     "all": "npm run format && npm run lint && npm run build && npm run package && npm test"
