@@ -27,7 +27,7 @@ function getInputs(): {[key: string]: string} {
     LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
     LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
     BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true}),
-    PULL_REQUEST_LABELS: core.getInput(ActionInputs.PULL_REQUEST_LABELS, {required: true})
+    LABELS: core.getInput(ActionInputs.LABELS, {required: true})
   }
 }
 
@@ -78,7 +78,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       LABEL_NAME,
       LABEL_COLOR,
       BASE_BRANCH,
-      PULL_REQUEST_LABELS
+      LABELS
     } = getInputs()
     const RUN_NUMBER = getRunNumber()
     // verify the directory exists and is a directory
@@ -169,7 +169,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       
       try {
         const [owner, repo] = REPO.split('/')
-        const cleanedLabels = PULL_REQUEST_LABELS.split(",")
+        const originalLables = LABELS.replace(/\s/g, "");
+        const cleanedLabels = originalLables.split(",")
 
         const jsonOutput = jsonFormatter.formatOutput(result, true)
         const files = getFileChanges(jsonOutput)
@@ -190,9 +191,9 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           })
 
           if (pr) {
-            core.info(`Lables: ${cleanedLabels} `)
             core.info(`Created PR: ${pr.data.html_url}`)
-          } 
+            core.info(`Labels: ${LABELS}`)
+          }   
 
         } else {
           console.log("No changes detected")

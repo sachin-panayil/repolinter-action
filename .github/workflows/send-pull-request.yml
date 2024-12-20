@@ -13,6 +13,6 @@ jobs:
         uses: sachin-panayil/repolinter-action@main 
         with:
           output_type: 'pull-request'  
-          pull_request_labels: 'repolinter, OSPO, Tier 1'
+          labels: 'repolinter, OSPO, Tier 1'
 
 

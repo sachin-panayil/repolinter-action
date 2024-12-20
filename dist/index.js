@@ -588,7 +588,7 @@ function getInputs() {
         LABEL_NAME: core.getInput("label_name" /* LABEL_NAME */, { required: true }),
         LABEL_COLOR: core.getInput("label_color" /* LABEL_COLOR */, { required: true }),
         BASE_BRANCH: core.getInput("base_branch" /* BASE_BRANCH */, { required: true }),
-        PULL_REQUEST_LABELS: core.getInput("pull_request_labels" /* PULL_REQUEST_LABELS */, { required: true })
+        LABELS: core.getInput("labels" /* LABELS */, { required: true })
     };
 }
 function getRunNumber() {
@@ -623,7 +623,7 @@ function run(disableRetry) {
         // load the configuration from file or url, depending on which one is configured
         try {
             // get all inputs
-            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH, PULL_REQUEST_LABELS } = getInputs();
+            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH, LABELS } = getInputs();
             const RUN_NUMBER = getRunNumber();
             // verify the directory exists and is a directory
             try {
@@ -714,7 +714,8 @@ function run(disableRetry) {
                 core.startGroup('Sending a PR');
                 try {
                     const [owner, repo] = REPO.split('/');
-                    const cleanedLabels = PULL_REQUEST_LABELS.split(",");
+                    const originalLables = LABELS.replace(/\s/g, "");
+                    const cleanedLabels = originalLables.split(",");
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
@@ -732,8 +733,8 @@ function run(disableRetry) {
                                 }]
                         });
                         if (pr) {
-                            core.info(`Lables: ${cleanedLabels} `);
                             core.info(`Created PR: ${pr.data.html_url}`);
+                            core.info(`Labels: ${LABELS}`);
                         }
                     }
                     else {
