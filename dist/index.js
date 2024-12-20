@@ -587,7 +587,8 @@ function getInputs() {
         OUTPUT_NAME: core.getInput("output_name" /* OUTPUT_NAME */, { required: true }),
         LABEL_NAME: core.getInput("label_name" /* LABEL_NAME */, { required: true }),
         LABEL_COLOR: core.getInput("label_color" /* LABEL_COLOR */, { required: true }),
-        BASE_BRANCH: core.getInput("base_branch" /* BASE_BRANCH */, { required: true })
+        BASE_BRANCH: core.getInput("base_branch" /* BASE_BRANCH */, { required: true }),
+        LABELS: core.getInput("labels" /* LABELS */, { required: true })
     };
 }
 function getRunNumber() {
@@ -622,7 +623,7 @@ function run(disableRetry) {
         // load the configuration from file or url, depending on which one is configured
         try {
             // get all inputs
-            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH } = getInputs();
+            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH, LABELS } = getInputs();
             const RUN_NUMBER = getRunNumber();
             // verify the directory exists and is a directory
             try {
@@ -711,26 +712,27 @@ function run(disableRetry) {
                     }
                 });
                 core.startGroup('Sending a PR');
+                core.info(`Lables: ${LABELS} `);
                 try {
                     const [owner, repo] = REPO.split('/');
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
-                        const pr = yield octokit.createPullRequest({
-                            owner,
-                            repo,
-                            title: `Repolinter Results`,
-                            body: getPRBody(result),
-                            base: BASE_BRANCH,
-                            head: `repolinter-results-#${RUN_NUMBER}`,
-                            changes: [{
-                                    files,
-                                    commit: `repolinter-results-#${RUN_NUMBER}`
-                                }]
-                        });
-                        if (pr) {
-                            core.info(`Created PR: ${pr.data.html_url}`);
-                        }
+                        // const pr = await octokit.createPullRequest({
+                        //   owner,
+                        //   repo,
+                        //   title: `Repolinter Results`,
+                        //   body: getPRBody(result),
+                        //   base: BASE_BRANCH,
+                        //   head: `repolinter-results-#${RUN_NUMBER}`,
+                        //   changes: [{
+                        //     files,
+                        //     commit: `changes based on repolinter output`
+                        //   }]
+                        // })
+                        // if (pr) {
+                        //   core.info(`Created PR: ${pr.data.html_url}`)
+                        // }   
                     }
                     else {
                         console.log("No changes detected");
