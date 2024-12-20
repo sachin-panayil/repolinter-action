@@ -91,7 +91,7 @@ inputs:
 
       This option will be ignored if output_type != "issue".
     default: '[Repolinter] Open Source Policy Issues'
-  label_name:
+  issue_label_name:
     required: false
     description: >
       The name to use for the issue label created by repolinter-action. This name
@@ -100,7 +100,7 @@ inputs:
 
       This option will be ignored if output_type != "issue".
     default: 'repolinter'
-  label_color:
+  issue_label_color:
     required: false
     description: >
       The color to use for the issue label created by repolinter-action. The value
@@ -109,7 +109,7 @@ inputs:
 
       This option will be ignored if output_type != "issue".
     default: 'fbca04'
-  labels:
+  pull_request_labels:
     required: false
     description: >
       The labels that you want to use to add to your properly.
@@ -133,9 +133,9 @@ runs:
     INPUT_REPOSITORY: ${{ inputs.repository }}
     INPUT_OUTPUT_TYPE: ${{ inputs.output_type }}
     INPUT_OUTPUT_NAME: ${{ inputs.output_name }}
-    INPUT_LABEL_NAME: ${{ inputs.label_name }}
-    INPUT_LABEL_COLOR: ${{ inputs.label_color }}
-    INPUT_LABELS: ${{ inputs.labels }}
+    INPUT_ISSUE_LABEL_NAME: ${{ inputs.issue_label_name }}
+    INPUT_ISSUE_LABEL_COLOR: ${{ inputs.issue_label_color }}
+    INPUT_PULL_REQUEST_LABELS: ${{ inputs.pull_request_labels }}
 branding:
   color: green
   icon: refresh-cw

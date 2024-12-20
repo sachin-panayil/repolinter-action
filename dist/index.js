@@ -588,7 +588,7 @@ function getInputs() {
         LABEL_NAME: core.getInput("label_name" /* LABEL_NAME */, { required: true }),
         LABEL_COLOR: core.getInput("label_color" /* LABEL_COLOR */, { required: true }),
         BASE_BRANCH: core.getInput("base_branch" /* BASE_BRANCH */, { required: true }),
-        LABELS: core.getInput("labels" /* LABELS */, { required: true })
+        PULL_REQUEST_LABELS: core.getInput("pull_request_labels" /* PULL_REQUEST_LABELS */, { required: true })
     };
 }
 function getRunNumber() {
@@ -623,7 +623,7 @@ function run(disableRetry) {
         // load the configuration from file or url, depending on which one is configured
         try {
             // get all inputs
-            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH, LABELS } = getInputs();
+            const { DIRECTORY, TOKEN, USERNAME, CONFIG_FILE, CONFIG_URL, REPO, OUTPUT_TYPE, OUTPUT_NAME, LABEL_NAME, LABEL_COLOR, BASE_BRANCH, PULL_REQUEST_LABELS } = getInputs();
             const RUN_NUMBER = getRunNumber();
             // verify the directory exists and is a directory
             try {
@@ -637,6 +637,9 @@ function run(disableRetry) {
             // verify the output type is correct
             if (OUTPUT_TYPE !== 'exit-code' && OUTPUT_TYPE !== 'issue' && OUTPUT_TYPE !== "pull-request")
                 throw new Error(`Invalid output paramter value ${OUTPUT_TYPE} There is another error here`);
+            // verify the pull requests label name is a string
+            if (!PULL_REQUEST_LABELS)
+                throw new Error(`Invalid label name value ${PULL_REQUEST_LABELS}`);
             // verify the label name is a string
             if (!LABEL_NAME)
                 throw new Error(`Invalid label name value ${LABEL_NAME}`);
@@ -712,11 +715,9 @@ function run(disableRetry) {
                     }
                 });
                 core.startGroup('Sending a PR');
-                core.info(`Lables: ${LABELS} `);
                 try {
                     const [owner, repo] = REPO.split('/');
-                    const originalLables = LABELS.replace(/\s/g, "");
-                    const cleanedLabels = originalLables.split(",");
+                    const cleanedLabels = PULL_REQUEST_LABELS.split(",");
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
@@ -734,8 +735,8 @@ function run(disableRetry) {
                                 }]
                         });
                         if (pr) {
+                            core.info(`Lables: ${cleanedLabels} `);
                             core.info(`Created PR: ${pr.data.html_url}`);
-                            core.info(`Labels: ${LABELS}`);
                         }
                     }
                     else {

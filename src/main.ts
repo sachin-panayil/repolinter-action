@@ -27,7 +27,7 @@ function getInputs(): {[key: string]: string} {
     LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
     LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
     BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true}),
-    LABELS: core.getInput(ActionInputs.LABELS, {required: true})
+    PULL_REQUEST_LABELS: core.getInput(ActionInputs.PULL_REQUEST_LABELS, {required: true})
   }
 }
 
@@ -78,7 +78,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       LABEL_NAME,
       LABEL_COLOR,
       BASE_BRANCH,
-      LABELS
+      PULL_REQUEST_LABELS
     } = getInputs()
     const RUN_NUMBER = getRunNumber()
     // verify the directory exists and is a directory
@@ -94,6 +94,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     // verify the output type is correct
     if (OUTPUT_TYPE!== 'exit-code' && OUTPUT_TYPE !== 'issue' && OUTPUT_TYPE !== "pull-request")
       throw new Error(`Invalid output paramter value ${ OUTPUT_TYPE} There is another error here`)
+    // verify the pull requests label name is a string
+    if (!PULL_REQUEST_LABELS) throw new Error(`Invalid label name value ${PULL_REQUEST_LABELS}`)
     // verify the label name is a string
     if (!LABEL_NAME) throw new Error(`Invalid label name value ${LABEL_NAME}`)
     // verify the label color is a color
@@ -166,12 +168,10 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       })
 
       core.startGroup('Sending a PR')
-      core.info(`Lables: ${LABELS} `)
       
       try {
         const [owner, repo] = REPO.split('/')
-        const originalLables = LABELS.replace(/\s/g, "");
-        const cleanedLabels = originalLables.split(",")
+        const cleanedLabels = PULL_REQUEST_LABELS.split(",")
 
         const jsonOutput = jsonFormatter.formatOutput(result, true)
         const files = getFileChanges(jsonOutput)
@@ -192,9 +192,9 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           })
 
           if (pr) {
+            core.info(`Lables: ${cleanedLabels} `)
             core.info(`Created PR: ${pr.data.html_url}`)
-            core.info(`Labels: ${LABELS}`)
-          }   
+          } 
 
         } else {
           console.log("No changes detected")
