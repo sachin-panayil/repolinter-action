@@ -26,7 +26,8 @@ function getInputs(): {[key: string]: string} {
     OUTPUT_NAME: core.getInput(ActionInputs.OUTPUT_NAME, {required: true}),
     LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
     LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
-    BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true})
+    BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true}),
+    LABELS: core.getInput(ActionInputs.LABELS, {required: true})
   }
 }
 
@@ -76,7 +77,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       OUTPUT_NAME,
       LABEL_NAME,
       LABEL_COLOR,
-      BASE_BRANCH
+      BASE_BRANCH,
+      LABELS
     } = getInputs()
     const RUN_NUMBER = getRunNumber()
     // verify the directory exists and is a directory
@@ -171,22 +173,24 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         const files = getFileChanges(jsonOutput)
 
         if (Object.keys(files).length !== 0) {
-          const pr = await octokit.createPullRequest({
-            owner,
-            repo,
-            title: `Repolinter Results`,
-            body: getPRBody(result),
-            base: BASE_BRANCH,
-            head: `repolinter-results-#${RUN_NUMBER}`,
-            changes: [{
-              files,
-              commit: `repolinter-results-#${RUN_NUMBER}`
-            }]
-          })
+          // const pr = await octokit.createPullRequest({
+          //   owner,
+          //   repo,
+          //   title: `Repolinter Results`,
+          //   body: getPRBody(result),
+          //   base: BASE_BRANCH,
+          //   head: `repolinter-results-#${RUN_NUMBER}`,
+          //   changes: [{
+          //     files,
+          //     commit: `changes based on repolinter output`
+          //   }]
+          // })
 
-          if (pr) {
-            core.info(`Created PR: ${pr.data.html_url}`)
-          } 
+          // if (pr) {
+          //   core.info(`Created PR: ${pr.data.html_url}`)
+          // } 
+
+          core.info(`Lables: ${LABELS} `)
 
         } else {
           console.log("No changes detected")

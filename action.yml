@@ -74,7 +74,9 @@ inputs:
         repository with the repolinter output and always exit 0. See the README for
         more details on issue outputting behavior. This output type is ideal for
         non-intrusive notification.
-      * "pull-request": repolitner-action will send a PR.
+      * "pull-request": repolinter-action will send a PR with the neccessary changes 
+        based on the repolinter configuration. This output type is ideal for repo owners
+        who want comprehensive compliance.
     default: 'exit-code'
   base_branch:
     required: false
@@ -107,6 +109,11 @@ inputs:
 
       This option will be ignored if output_type != "issue".
     default: 'fbca04'
+  labels:
+    required: false
+    description: >
+      The labels that you want to use to add to your properly.
+    default: 'repolinter'
 outputs:
   passed:
     description: 'A boolean indicating whether or not the Repolinter run passed or failed.'
@@ -128,6 +135,7 @@ runs:
     INPUT_OUTPUT_NAME: ${{ inputs.output_name }}
     INPUT_LABEL_NAME: ${{ inputs.label_name }}
     INPUT_LABEL_COLOR: ${{ inputs.label_color }}
+    INPUT_LABELS: ${{ inputs.labels }}
 branding:
   color: green
   icon: refresh-cw
