@@ -254,3 +254,19 @@ If you have any questions, or to execute our corporate CLA, required if your con
 repolinter-action is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
 
 > This repo also uses source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the [third-party-notices](./THIRD_PARTY_NOTICES.md) document.
+ 
+ 
+## About the Project
+A description of the project's purpose and functionality... 
+ 
+## Core Team
+Key members and contributors of the project... 
+ 
+## Policies
+Project policies and guidelines... 
+ 
+## Security and Responsible Disclosure Policy
+How to report security vulnerabilities... 
+ 
+## Public Domain
+Information about public domain status...
