@@ -166,6 +166,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       })
 
       core.startGroup('Sending a PR')
+      core.info(`Lables: ${LABELS} `)
       
       try {
         const [owner, repo] = REPO.split('/')

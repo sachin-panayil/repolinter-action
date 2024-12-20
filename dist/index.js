@@ -712,6 +712,7 @@ function run(disableRetry) {
                     }
                 });
                 core.startGroup('Sending a PR');
+                core.info(`Lables: ${LABELS} `);
                 try {
                     const [owner, repo] = REPO.split('/');
                     const originalLables = LABELS.replace(/\s/g, "");
