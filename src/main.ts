@@ -166,6 +166,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       })
 
       core.startGroup('Sending a PR')
+      core.info(`Lables: ${LABELS} `)
       
       try {
         const [owner, repo] = REPO.split('/')
@@ -188,9 +189,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
 
           // if (pr) {
           //   core.info(`Created PR: ${pr.data.html_url}`)
-          // } 
-
-          core.info(`Lables: ${LABELS} `)
+          // }   
 
         } else {
           console.log("No changes detected")
