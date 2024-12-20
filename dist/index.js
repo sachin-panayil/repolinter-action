@@ -715,24 +715,28 @@ function run(disableRetry) {
                 core.info(`Lables: ${LABELS} `);
                 try {
                     const [owner, repo] = REPO.split('/');
+                    const originalLables = LABELS.replace(/\s/g, "");
+                    const cleanedLabels = originalLables.split(",");
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
-                        // const pr = await octokit.createPullRequest({
-                        //   owner,
-                        //   repo,
-                        //   title: `Repolinter Results`,
-                        //   body: getPRBody(result),
-                        //   base: BASE_BRANCH,
-                        //   head: `repolinter-results-#${RUN_NUMBER}`,
-                        //   changes: [{
-                        //     files,
-                        //     commit: `changes based on repolinter output`
-                        //   }]
-                        // })
-                        // if (pr) {
-                        //   core.info(`Created PR: ${pr.data.html_url}`)
-                        // }   
+                        const pr = yield octokit.createPullRequest({
+                            owner,
+                            repo,
+                            title: `Repolinter Results`,
+                            body: getPRBody(result),
+                            base: BASE_BRANCH,
+                            head: `repolinter-results-#${RUN_NUMBER}`,
+                            labels: cleanedLabels,
+                            changes: [{
+                                    files,
+                                    commit: `changes based on repolinter output`
+                                }]
+                        });
+                        if (pr) {
+                            core.info(`Created PR: ${pr.data.html_url}`);
+                            core.info(`Labels: ${LABELS}`);
+                        }
                     }
                     else {
                         console.log("No changes detected");
