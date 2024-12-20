@@ -24,3 +24,25 @@ Keep in mind that when you submit your Pull Request, you'll need to sign the CLA
 
 For more information about CLAs, please check out Alex Russell’s excellent post,
 [“Why Do I Need to Sign This?”](https://infrequently.org/2008/06/why-do-i-need-to-sign-this/).
+ 
+ 
+## Getting Started
+Initial setup steps for contributors... 
+ 
+## Building Dependencies
+Steps to build project dependencies... 
+ 
+## Building the Project
+Steps to build and test the project... 
+ 
+## Policies
+Project policies for contributors... 
+ 
+## Open Source Policy
+Open source guidelines and requirements... 
+ 
+## Security and Responsible Disclosure Policy
+Guidelines for reporting security issues... 
+ 
+## Public Domain
+Information about public domain status...
