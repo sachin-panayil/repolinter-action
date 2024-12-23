@@ -714,7 +714,8 @@ function run(disableRetry) {
                 core.startGroup('Sending a PR');
                 try {
                     const [owner, repo] = REPO.split('/');
-                    const cleanedLabels = LABELS.split(",");
+                    const originalLables = LABELS.replace(/\s/g, "");
+                    const cleanedLabels = originalLables.split(",");
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {

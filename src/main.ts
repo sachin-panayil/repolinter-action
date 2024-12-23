@@ -169,7 +169,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       
       try {
         const [owner, repo] = REPO.split('/')
-        const cleanedLabels = LABELS.split(",")
+        const originalLables = LABELS.replace(/\s/g, "");
+        const cleanedLabels = originalLables.split(",")
 
         const jsonOutput = jsonFormatter.formatOutput(result, true)
         const files = getFileChanges(jsonOutput)
