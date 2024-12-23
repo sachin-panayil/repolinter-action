@@ -620,7 +620,7 @@ function getPRBody(result) {
 }
 function cleanLabels(labels) {
     const arrayOfLabels = labels.split(",");
-    var cleanedLabels = [""];
+    const cleanedLabels = [];
     arrayOfLabels.forEach((element) => {
         cleanedLabels.push(element.trim());
     });

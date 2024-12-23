@@ -64,7 +64,7 @@ function getPRBody(result: LintResult): string {
 
 function cleanLabels(labels: string): string[] {
   const arrayOfLabels = labels.split(",")
-  var cleanedLabels = [""]
+  const cleanedLabels: string[] = []
 
   arrayOfLabels.forEach((element) => {
     cleanedLabels.push(element.trim())
