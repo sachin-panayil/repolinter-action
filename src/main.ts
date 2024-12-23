@@ -94,6 +94,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     // verify the output type is correct
     if (OUTPUT_TYPE!== 'exit-code' && OUTPUT_TYPE !== 'issue' && OUTPUT_TYPE !== "pull-request")
       throw new Error(`Invalid output paramter value ${ OUTPUT_TYPE} There is another error here`)
+    // verify the label name is a string
     if (!LABEL_NAME) throw new Error(`Invalid label name value ${LABEL_NAME}`)
     // verify the label color is a color
     if (!/[0-9a-fA-F]{6}/.test(LABEL_COLOR))
@@ -189,9 +190,9 @@ export default async function run(disableRetry?: boolean): Promise<void> {
           })
 
           if (pr) {
-            core.info(`Lables: ${cleanedLabels} `)
             core.info(`Created PR: ${pr.data.html_url}`)
-          } 
+            core.info(`Labels: ${LABELS}`)
+          }   
 
         } else {
           console.log("No changes detected")
