@@ -62,6 +62,17 @@ function getPRBody(result: LintResult): string {
   `
 }
 
+function cleanLabels(labels: string): string[] {
+  const arrayOfLabels = labels.split(",")
+  var cleanedLabels = [""]
+
+  arrayOfLabels.forEach((element) => {
+    cleanedLabels.push(element.trim())
+  })
+
+  return cleanedLabels
+}
+
 export default async function run(disableRetry?: boolean): Promise<void> {
   // load the configuration from file or url, depending on which one is configured
   try {
@@ -169,9 +180,6 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       
       try {
         const [owner, repo] = REPO.split('/')
-        const originalLables = LABELS.replace(/\s/g, "");
-        const cleanedLabels = originalLables.split(",")
-
         const jsonOutput = jsonFormatter.formatOutput(result, true)
         const files = getFileChanges(jsonOutput)
 
@@ -183,7 +191,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
             body: getPRBody(result),
             base: BASE_BRANCH,
             head: `repolinter-results-#${RUN_NUMBER}`,
-            labels: cleanedLabels,
+            labels: cleanLabels(LABELS),
             changes: [{
               files,
               commit: `changes based on repolinter output`

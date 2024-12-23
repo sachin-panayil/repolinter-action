@@ -618,6 +618,14 @@ function getPRBody(result) {
   </details>
   `;
 }
+function cleanLabels(labels) {
+    const arrayOfLabels = labels.split(",");
+    var cleanedLabels = [""];
+    arrayOfLabels.forEach((element) => {
+        cleanedLabels.push(element.trim());
+    });
+    return cleanedLabels;
+}
 function run(disableRetry) {
     return __awaiter(this, void 0, void 0, function* () {
         // load the configuration from file or url, depending on which one is configured
@@ -714,8 +722,6 @@ function run(disableRetry) {
                 core.startGroup('Sending a PR');
                 try {
                     const [owner, repo] = REPO.split('/');
-                    const originalLables = LABELS.replace(/\s/g, "");
-                    const cleanedLabels = originalLables.split(",");
                     const jsonOutput = repolinter_1.jsonFormatter.formatOutput(result, true);
                     const files = getFileChanges_1.getFileChanges(jsonOutput);
                     if (Object.keys(files).length !== 0) {
@@ -726,7 +732,7 @@ function run(disableRetry) {
                             body: getPRBody(result),
                             base: BASE_BRANCH,
                             head: `repolinter-results-#${RUN_NUMBER}`,
-                            labels: cleanedLabels,
+                            labels: cleanLabels(LABELS),
                             changes: [{
                                     files,
                                     commit: `changes based on repolinter output`
