@@ -112,7 +112,9 @@ inputs:
   pull_request_labels:
     required: false
     description: >
-      The labels that you want to use to add to your properly.
+      The labels that you want to use to add to your Pull Request created 
+      by repolinter-actions. These values shouldbe seperated by commas.
+      Example: "repolinter, OSPO, Tier 2"
     default: 'repolinter'
 outputs:
   passed:

@@ -12,8 +12,6 @@ jobs:
       - name: Test Local Action
         uses: sachin-panayil/repolinter-action@main 
         with:
-          output_type: 'pull-request'  
-          pull_request_labels: "invalid/label, test@label, label#123"
-
+          output_type: 'issue'
 
 
