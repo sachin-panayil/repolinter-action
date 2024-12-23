@@ -24,8 +24,8 @@ function getInputs(): {[key: string]: string} {
     REPO: core.getInput(ActionInputs.REPO, {required: true}),
     OUTPUT_TYPE: core.getInput(ActionInputs.OUTPUT_TYPE, {required: true}),
     OUTPUT_NAME: core.getInput(ActionInputs.OUTPUT_NAME, {required: true}),
-    LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
-    LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
+    ISSUE_LABEL_NAME: core.getInput(ActionInputs.ISSUE_LABEL_NAME, {required: true}),
+    ISSUE_LABEL_COLOR: core.getInput(ActionInputs.ISSUE_LABEL_COLOR, {required: true}),
     BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true}),
     PULL_REQUEST_LABELS: core.getInput(ActionInputs.PULL_REQUEST_LABELS, {required: true})
   }
@@ -86,8 +86,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       REPO,
       OUTPUT_TYPE,
       OUTPUT_NAME,
-      LABEL_NAME,
-      LABEL_COLOR,
+      ISSUE_LABEL_NAME,
+      ISSUE_LABEL_COLOR,
       BASE_BRANCH,
       PULL_REQUEST_LABELS
     } = getInputs()
@@ -106,10 +106,10 @@ export default async function run(disableRetry?: boolean): Promise<void> {
     if (OUTPUT_TYPE!== 'exit-code' && OUTPUT_TYPE !== 'issue' && OUTPUT_TYPE !== "pull-request")
       throw new Error(`Invalid output paramter value ${ OUTPUT_TYPE} There is another error here`)
     // verify the label name is a string
-    if (!LABEL_NAME) throw new Error(`Invalid label name value ${LABEL_NAME}`)
+    if (!ISSUE_LABEL_NAME) throw new Error(`Invalid label name value ${ISSUE_LABEL_NAME}`)
     // verify the label color is a color
-    if (!/[0-9a-fA-F]{6}/.test(LABEL_COLOR))
-      throw new Error(`Invalid label color ${LABEL_COLOR}`)
+    if (!/[0-9a-fA-F]{6}/.test(ISSUE_LABEL_COLOR))
+      throw new Error(`Invalid label color ${ISSUE_LABEL_COLOR}`)
     // override GITHUB_TOKEN and INPUT_GITHUB_TOKEN if INPUT_TOKEN is present
     if (TOKEN) {
       delete process.env['INPUT_TOKEN']
@@ -157,8 +157,8 @@ export default async function run(disableRetry?: boolean): Promise<void> {
         username: USERNAME,
         issueName: OUTPUT_NAME,
         issueContent,
-        labelName: LABEL_NAME,
-        labelColor: LABEL_COLOR,
+        labelName: ISSUE_LABEL_NAME,
+        labelColor: ISSUE_LABEL_COLOR,
         shouldClose: result.passed === true,
         runNumber: RUN_NUMBER
       })
