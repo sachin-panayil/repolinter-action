@@ -652,8 +652,9 @@ function run(disableRetry) {
             if (!/[0-9a-fA-F]{6}/.test(ISSUE_LABEL_COLOR))
                 throw new Error(`Invalid label color ${ISSUE_LABEL_COLOR}`);
             // verify pull request labels are valid
-            if (PULL_REQUEST_LABELS && !/^[a-zA-Z0-9\-_. ,]+$/.test(PULL_REQUEST_LABELS))
+            if (PULL_REQUEST_LABELS && !/^[a-zA-Z0-9\-_. ,]+$/.test(PULL_REQUEST_LABELS)) {
                 throw new Error(`Invalid pull request labels. For label standards, see: https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels`);
+            }
             // override GITHUB_TOKEN and INPUT_GITHUB_TOKEN if INPUT_TOKEN is present
             if (TOKEN) {
                 delete process.env['INPUT_TOKEN'];
