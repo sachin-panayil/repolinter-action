@@ -109,7 +109,7 @@ inputs:
 
       This option will be ignored if output_type != "issue".
     default: 'fbca04'
-  labels:
+  pull_request_labels:
     required: false
     description: >
       The labels that you want to use to add to your properly.
@@ -135,7 +135,7 @@ runs:
     INPUT_OUTPUT_NAME: ${{ inputs.output_name }}
     INPUT_LABEL_NAME: ${{ inputs.label_name }}
     INPUT_LABEL_COLOR: ${{ inputs.label_color }}
-    INPUT_LABELS: ${{ inputs.labels }}
+    INPUT_PULL_REQUEST_LABELS: ${{ inputs.pull_request_labels }}
 branding:
   color: green
   icon: refresh-cw

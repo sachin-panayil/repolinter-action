@@ -10,7 +10,7 @@ export const enum ActionInputs {
   LABEL_NAME = 'label_name',
   LABEL_COLOR = 'label_color',
   BASE_BRANCH = "base_branch",
-  LABELS = 'labels'
+  PULL_REQUEST_LABELS = 'pull_request_labels'
 }
 
 export const enum ActionOutputs {

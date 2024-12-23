@@ -27,7 +27,7 @@ function getInputs(): {[key: string]: string} {
     LABEL_NAME: core.getInput(ActionInputs.LABEL_NAME, {required: true}),
     LABEL_COLOR: core.getInput(ActionInputs.LABEL_COLOR, {required: true}),
     BASE_BRANCH: core.getInput(ActionInputs.BASE_BRANCH, {required: true}),
-    LABELS: core.getInput(ActionInputs.LABELS, {required: true})
+    PULL_REQUEST_LABELS: core.getInput(ActionInputs.PULL_REQUEST_LABELS, {required: true})
   }
 }
 
@@ -89,7 +89,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       LABEL_NAME,
       LABEL_COLOR,
       BASE_BRANCH,
-      LABELS
+      PULL_REQUEST_LABELS
     } = getInputs()
     const RUN_NUMBER = getRunNumber()
     // verify the directory exists and is a directory
@@ -180,8 +180,11 @@ export default async function run(disableRetry?: boolean): Promise<void> {
       
       try {
         const [owner, repo] = REPO.split('/')
+        const cleanedLabels = cleanLabels(PULL_REQUEST_LABELS)
+
         const jsonOutput = jsonFormatter.formatOutput(result, true)
         const files = getFileChanges(jsonOutput)
+
 
         if (Object.keys(files).length !== 0) {
           const pr = await octokit.createPullRequest({
@@ -191,7 +194,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
             body: getPRBody(result),
             base: BASE_BRANCH,
             head: `repolinter-results-#${RUN_NUMBER}`,
-            labels: cleanLabels(LABELS),
+            labels: cleanedLabels,
             changes: [{
               files,
               commit: `changes based on repolinter output`
@@ -200,7 +203,7 @@ export default async function run(disableRetry?: boolean): Promise<void> {
 
           if (pr) {
             core.info(`Created PR: ${pr.data.html_url}`)
-            core.info(`Labels: ${LABELS}`)
+            core.info(`Created Labels for PR: ${cleanedLabels}`)
           }   
 
         } else {
