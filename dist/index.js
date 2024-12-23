@@ -619,12 +619,17 @@ function getPRBody(result) {
   `;
 }
 function cleanLabels(labels) {
-    const arrayOfLabels = labels.split(",");
-    const cleanedLabels = [];
-    arrayOfLabels.forEach((element) => {
-        cleanedLabels.push(element.trim());
-    });
-    return cleanedLabels;
+    try {
+        const arrayOfLabels = labels.split(",");
+        const cleanedLabels = [];
+        arrayOfLabels.forEach((element) => {
+            cleanedLabels.push(element.trim());
+        });
+        return cleanedLabels;
+    }
+    catch (error) {
+        throw new Error('Invalid label format. See GitHub label documentation: https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels');
+    }
 }
 function run(disableRetry) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -651,10 +656,6 @@ function run(disableRetry) {
             // verify the label color is a color
             if (!/[0-9a-fA-F]{6}/.test(ISSUE_LABEL_COLOR))
                 throw new Error(`Invalid label color ${ISSUE_LABEL_COLOR}`);
-            // verify pull request labels are valid
-            if (PULL_REQUEST_LABELS && !/^[a-zA-Z0-9\-_. ,]+$/.test(PULL_REQUEST_LABELS)) {
-                throw new Error(`Invalid pull request labels. For label standards, see: https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels`);
-            }
             // override GITHUB_TOKEN and INPUT_GITHUB_TOKEN if INPUT_TOKEN is present
             if (TOKEN) {
                 delete process.env['INPUT_TOKEN'];
