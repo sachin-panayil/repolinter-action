@@ -1,18 +1,20 @@
-name: Test New Repolinter Action
-on:
-    push:   
+name: 'Create a PR based on validation'
+
+on: 
     workflow_dispatch: {} 
 
 jobs:
-  test:
+  repolinter-action:
     runs-on: ubuntu-latest
+    name: Run Repolinter
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Test Local Action
-        uses: sachin-panayil/repolinter-action@main 
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: 'Run Repolinter'
+        uses: DSACMS/repolinter-action@main
         with:
-          output_type: 'pull-request'  
+          output_type: 'pull-request'
           labels: 'repolinter, OSPO, Tier 1'
-
-
