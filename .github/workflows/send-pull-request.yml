@@ -60,5 +60,3 @@ jobs:
           config_file: 'repolinter.json'
           output_type: 'pull-request'
           pull_request_labels: 'repolinter, cms-oss, cms-gov, repolinter-initialized'
-
-          #dsa
