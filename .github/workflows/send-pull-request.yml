@@ -50,4 +50,3 @@ jobs:
           config_file: 'repolinter.json'
           output_type: 'pull-request'
           pull_request_labels: 'repolinter, cms-oss, cms-gov'
-          token: ${{ secrets.REPOLINTER_AUTO_TOKEN }}
