@@ -12,26 +12,30 @@ jobs:
       should_run: ${{ steps.check.outputs.should_run }}
     permissions:
       contents: read
-      issues: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - id: check
         run: |
           # If manually triggered, always run
+
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
             exit 0
+
           fi
           
           # Check if initialization label exists
+
           has_label=$(gh label list --json name | jq '.[] | select(.name=="repolinter-initialized")')
+
           if [[ -z "$has_label" ]]; then
             # First time - create label and allow run
             gh label create repolinter-initialized --description "Marks repo as having run initial repolinter check"
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
+
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,4 +63,4 @@ jobs:
         with:
           config_file: 'repolinter.json'
           output_type: 'pull-request'
-          pull_request_labels: 'repolinter, cms-oss, cms-gov, repolinter-initialized'
+          pull_request_labels: 'repolinter-initialized, cms-oss, cms-gov'
